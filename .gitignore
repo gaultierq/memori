@@ -18,6 +18,7 @@ local.properties
 #ide
 .idea
 
+local.properties
 
 # Gradle 
 .gradle
