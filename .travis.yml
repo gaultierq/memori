@@ -6,8 +6,9 @@ env:
 
 android:
   components:
+    - build-tools-23.0.0
     - android-23
-    - build-tools-23.0.2
+    - android-L
   licenses:
     - /android-sdk-license-[0-9a-f]{8}/
     - '.*intel.+'
