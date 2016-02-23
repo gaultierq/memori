@@ -19,7 +19,7 @@ local.properties
 .idea
 
 
-# Gradle
+# Gradle 
 .gradle
 
 build/
