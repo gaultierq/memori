@@ -9,7 +9,8 @@ android:
     - android-23
     - build-tools-23.0.2
   licenses:
-    - /android-sdk-license-[0-9a-f]{8}/ # new license!
+    - /android-sdk-license-[0-9a-f]{8}/
+    - '.*intel.+'
 
 # before_script:
 #   # Create and start emulator
