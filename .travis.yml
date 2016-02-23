@@ -6,13 +6,15 @@ env:
 
 android:
   components:
+    - tools
+    - platform-tools
     - build-tools-23.0.2
     - android-23
     - android-L
     - extra
-  licenses:
-    - /android-sdk-license-[0-9a-f]{8}/
-    - '.*intel.+'
+  # licenses:
+  #   - /android-sdk-license-[0-9a-f]{8}/
+  #   - '.*intel.+'
 
 # before_script:
 #   # Create and start emulator
