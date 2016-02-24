@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 echo "pwd: $(pwd)"
 echo "ls: $(ls)"
-echo "CIRCLE_ARTIFACTS: $CIRCLE_ARTIFACTS"
+echo "CIRCLE_ARTIFACTS: $(ls $CIRCLE_ARTIFACTS)"
+echo "CIRCLE_ARTIFACTS/app: $(ls $CIRCLE_ARTIFACTS/app)"
+
 curl \
 -F "status=2" \
 -F "notify=1" \
