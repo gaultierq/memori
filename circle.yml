@@ -1,0 +1,5 @@
+deployment:
+  develop:
+    branch: master
+    commands:
+      - ./deploy_dev.sh
