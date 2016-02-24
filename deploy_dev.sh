@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-
+echo "pwd: $(pwd)"
+echo "ls: $(ls)"
 curl \
 -F "status=2" \
 -F "notify=1" \
