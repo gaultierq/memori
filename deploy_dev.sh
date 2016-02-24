@@ -2,7 +2,7 @@
 echo "pwd: $(pwd)"
 echo "ls: $(ls)"
 echo "CIRCLE_ARTIFACTS: $(ls $CIRCLE_ARTIFACTS)"
-echo "CIRCLE_ARTIFACTS/outputs: $(ls $CIRCLE_ARTIFACTS/outputs)"
+echo "CIRCLE_ARTIFACTS/outputs/apk: $(ls $CIRCLE_ARTIFACTS/outputs/apk)"
 
 curl \
 -F "status=2" \
