@@ -6,7 +6,10 @@
     </shared>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="05ec0d5a-ab46-418a-8a9e-546c7c5859be" name="Default" comment="" />
+    <list default="true" id="05ec0d5a-ab46-418a-8a9e-546c7c5859be" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/circle.yml" afterPath="$PROJECT_DIR$/circle.yml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/deploy_dev.sh" afterPath="$PROJECT_DIR$/deploy_dev.sh" />
+    </list>
     <ignored path="memori.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
