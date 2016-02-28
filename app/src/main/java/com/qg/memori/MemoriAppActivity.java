@@ -1,28 +1,50 @@
 package com.qg.memori;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.Toast;
 
-public class MemoriAppActivity extends AppCompatActivity {
+import java.util.List;
 
+public class MemoriAppActivity extends Activity {
+
+
+    private MemoriesArrayAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_memori_app);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
+        List<Memory> memories = new RecollectionSQL(this).getAllRecollections();
+
+
+        ListView listView = (ListView) findViewById(R.id.memory_list);
+        adapter = new MemoriesArrayAdapter(this, memories);
+        listView.setAdapter(adapter);
+        listView.setTextFilterEnabled(true);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(getApplicationContext(), adapter.getItem(position).answer, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        configAddButton();
+    }
+
+    private void configAddButton() {
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,9 +69,12 @@ public class MemoriAppActivity extends AppCompatActivity {
                 builder.setPositiveButton("Remember", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        RecollectionSQL.insertRecollection(context,
+                        Memory added = RecollectionSQL.insertRecollection(context,
                                 answerBox.getText().toString(),
                                 questionBox.getText().toString());
+
+                        adapter.add(added);
+                        refresh();
                     }
                 });
 
@@ -62,6 +87,19 @@ public class MemoriAppActivity extends AppCompatActivity {
                 builder.show();
             }
         });
+    }
+
+    private void refresh() {
+        if (adapter != null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (adapter != null) {
+                        adapter.notifyDataSetChanged();
+                    }
+                }
+            });
+        }
     }
 
     @Override

@@ -13,8 +13,8 @@
     tools:showIn="@layout/activity_memori_app"
     tools:context=".MemoriAppActivity">
 
-    <TextView
-        android:text="Hello Quentin! The full stack is linked! congratz"
+    <ListView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/memory_list"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 </RelativeLayout>
