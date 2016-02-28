@@ -93,4 +93,7 @@ public class RecollectionSQL extends SQLiteOpenHelper {
         return recollection;
     }
 
+    public boolean delete(Memory memory) {
+        return getReadableDatabase().delete(RECOLLECTION_TABLE_NAME, QUESTION + " = '" + memory.question + "'", null) > 0;
+    }
 }
