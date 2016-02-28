@@ -37,7 +37,7 @@ public class MemoriAppActivity extends Activity {
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
     private GoogleApiClient client;
-    private RecollectionSQL sql;
+    private SQLHelper sql;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,8 +73,8 @@ public class MemoriAppActivity extends Activity {
     }
 
     @NonNull
-    private RecollectionSQL obtainSqlHelper() {
-        return sql == null ? (sql = new RecollectionSQL(this)) : sql;
+    private SQLHelper obtainSqlHelper() {
+        return sql == null ? (sql = new SQLHelper(this)) : sql;
     }
 
     @Override
@@ -129,7 +129,7 @@ public class MemoriAppActivity extends Activity {
                 @Override
                 public void onClick(View v) {
                     MemoriAppActivity maa = (MemoriAppActivity) v.getContext();
-                    maa.obtainSqlHelper().delete(memory);
+                    maa.obtainSqlHelper().deleteByPK(memory);
                     maa.getFragmentManager().beginTransaction().remove(MemoryConfigFragment.this).commit();
                     maa.adapter.remove(memory);
                     maa.refresh();
@@ -169,7 +169,7 @@ public class MemoriAppActivity extends Activity {
                 builder.setPositiveButton("Remember", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Memory added = RecollectionSQL.insertRecollection(context,
+                        Memory added = SQLHelper.insertRecollection(context,
                                 answerBox.getText().toString(),
                                 questionBox.getText().toString());
 
