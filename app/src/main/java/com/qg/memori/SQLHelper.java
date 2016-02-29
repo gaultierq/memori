@@ -26,50 +26,6 @@ public class SQLHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 5;
 
 
-    @NonNull
-    private static String makeCreateCommand(Class clazz) {
-        StringBuilder res = new StringBuilder();
-        res.append("CREATE TABLE ").append(clazz.getSimpleName()).append(" (");
-
-        StringBuilder b = new StringBuilder();
-        for (Field f : clazz.getDeclaredFields()) {
-            SqlInfo sqlInfo = f.getAnnotation(SqlInfo.class);
-            if (sqlInfo == null) {
-                continue;
-            }
-            if (b.length() > 0) {
-                b.append(", ");
-            }
-            b.append(f.getName());
-            if (f.getType() == String.class) {
-                b.append(" string");
-            }
-            else if (f.getType() == Boolean.TYPE) {
-                b.append(" boolean");
-            }
-            else if (f.getType() == Date.class) {
-                b.append(" datetime");
-            }
-            else if (f.getType() == Integer.TYPE) {
-                b.append(" integer");
-            }
-            else if (f.getType() == Long.TYPE) {
-                b.append(" integer");
-            }
-            else {
-                throw new AssertionError("not supported");
-            }
-            if (sqlInfo.id()) {
-                b.append(" primary key autoincrement");
-            }
-        }
-        res.append(b);
-        String s = res.append(");").toString();
-        Log.i("sql", "sql create command: " + s);
-        return s;
-    }
-
-
     SQLHelper(Context context) {
         super(context, "MEMORI_DB_3", null, DATABASE_VERSION);
     }
@@ -77,6 +33,7 @@ public class SQLHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(makeCreateCommand(Memory.class));
+        db.execSQL(makeCreateCommand(Quizz.class));
     }
 
     @Override
@@ -152,11 +109,64 @@ public class SQLHelper extends SQLiteOpenHelper {
             else if (f.getType() == Long.class) {
                 v.put(f.getName(), (Long) f.get(m));
             }
+            else if (f.getType().isEnum()) {
+                Enum e = ((Enum)f.get(m));
+                if (e != null) {
+                    v.put(f.getName(), e.ordinal());
+                }
+            }
             else {
                 assert false : "not supported";
             }
         }
         return v;
+    }
+
+
+    @NonNull
+    private static String makeCreateCommand(Class clazz) {
+        StringBuilder res = new StringBuilder();
+        res.append("CREATE TABLE ").append(clazz.getSimpleName()).append(" (");
+
+        StringBuilder b = new StringBuilder();
+        for (Field f : clazz.getDeclaredFields()) {
+            SqlInfo sqlInfo = f.getAnnotation(SqlInfo.class);
+            if (sqlInfo == null) {
+                continue;
+            }
+            if (b.length() > 0) {
+                b.append(", ");
+            }
+            b.append(f.getName());
+            if (f.getType() == String.class) {
+                b.append(" string");
+            }
+            else if (f.getType() == Boolean.TYPE) {
+                b.append(" boolean");
+            }
+            else if (f.getType() == Date.class) {
+                b.append(" datetime");
+            }
+            else if (f.getType() == Integer.TYPE) {
+                b.append(" integer");
+            }
+            else if (f.getType() == Long.TYPE) {
+                b.append(" integer");
+            }
+            else if (f.getType().isEnum()) {
+                b.append(" integer");
+            }
+            else {
+                throw new AssertionError("not supported: "+f.getType());
+            }
+            if (sqlInfo.id()) {
+                b.append(" primary key autoincrement");
+            }
+        }
+        res.append(b);
+        String s = res.append(");").toString();
+        Log.i("sql", "sql create command: " + s);
+        return s;
     }
 
     private Map<String, Class> enumDataField(Class clazz) {
@@ -195,6 +205,10 @@ public class SQLHelper extends SQLiteOpenHelper {
                 }
                 else if (f.getType() == Long.class) {
                     f.set(res, cursor.getInt(i++));
+                }
+                else if (f.getType().isEnum()) {
+                    int ord = cursor.getInt(i++);
+                    f.set(res, f.getClass().getEnumConstants()[ord]);
                 }
                 else {
                     assert false : "not supported";
