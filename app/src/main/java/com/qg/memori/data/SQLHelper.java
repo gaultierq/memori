@@ -1,4 +1,4 @@
-package com.qg.memori;
+package com.qg.memori.data;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -26,7 +26,7 @@ public class SQLHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 5;
 
 
-    SQLHelper(Context context) {
+    public SQLHelper(Context context) {
         super(context, "MEMORI_DB_3", null, DATABASE_VERSION);
     }
 
@@ -63,25 +63,32 @@ public class SQLHelper extends SQLiteOpenHelper {
         return m;
     }
 
-    public List<Memory> getAllRecollections() {
-        List<Memory> recollections = new ArrayList<Memory>();
+    public <T extends ModelData> List<T> fetchData(Class<T> clazz) {
+        List<T> datas = new ArrayList<T>();
 
-        Set<String> fields = enumDataField(Memory.class).keySet();
-        Cursor cursor = getReadableDatabase().query(Memory.class.getSimpleName(),
+        Set<String> fields = enumDataField(clazz).keySet();
+        Cursor cursor = getReadableDatabase().query(clazz.getSimpleName(),
                 fields.toArray(new String[fields.size()])
                 , null, null, null, null, null);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            Memory res = new Memory();
+            T res = null;
+            try {
+                res = clazz.newInstance();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
             if (readCursor(cursor, res)) {
-                recollections.add(res);
+                datas.add(res);
             }
             cursor.moveToNext();
         }
         // make sure to close the cursor
         cursor.close();
-        return recollections;
+        return datas;
     }
 
 

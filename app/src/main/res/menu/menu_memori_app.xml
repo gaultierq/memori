@@ -2,8 +2,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MemoriAppActivity" >
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
+
+    <item android:id="@+id/action_display_quizz"
+        android:title="Display quizz"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/action_display_memory"
+        android:title="Display memory"
         android:orderInCategory="100"
         app:showAsAction="never" />
 </menu>

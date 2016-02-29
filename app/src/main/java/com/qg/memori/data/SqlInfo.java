@@ -1,4 +1,4 @@
-package com.qg.memori;
+package com.qg.memori.data;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
