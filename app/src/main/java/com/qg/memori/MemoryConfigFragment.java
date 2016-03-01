@@ -23,8 +23,8 @@ public class MemoryConfigFragment extends Fragment {
         res.findViewById(R.id.delete_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MemoriAppActivity maa = (MemoriAppActivity) v.getContext();
-                maa.obtainSqlHelper().deleteByPK(memory);
+                MainActivity maa = (MainActivity) v.getContext();
+                maa.obtainSLQHelper().deleteByPK(memory);
                 maa.getFragmentManager().beginTransaction().remove(MemoryConfigFragment.this).commit();
                 maa.adapter.remove(memory);
                 maa.refresh();

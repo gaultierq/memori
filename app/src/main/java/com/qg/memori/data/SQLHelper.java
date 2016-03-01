@@ -6,8 +6,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
+
+import junit.framework.Assert;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -23,11 +26,14 @@ import java.util.Set;
 
 public class SQLHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
+    public static final String TAG = "sql";
+    public static final String DB_NAME = "MEMORI_DB_3";
 
 
     public SQLHelper(Context context) {
-        super(context, "MEMORI_DB_3", null, DATABASE_VERSION);
+
+        super(context, DB_NAME, null, DATABASE_VERSION);
     }
 
     @Override
@@ -41,25 +47,21 @@ public class SQLHelper extends SQLiteOpenHelper {
 
     }
 
-    public static Memory insertRecollection(Context activity, String answer, String question) {
-        return insertRecollection(activity, answer, question, null);
-    }
-
-    public static Memory insertRecollection(Context activity, String answer, String question, String hint) {
-        SQLHelper sql = new SQLHelper(activity);
-        Memory m = new Memory();
-        m.question = question;
-        m.answer = answer;
-        m.hint = hint;
-        SQLiteDatabase db = sql.getReadableDatabase();
-        ContentValues cv = null;
+    @Nullable
+    public  <T extends  ModelData> T insertData(T m) {
+        Assert.assertNotNull(m);
+        SQLiteDatabase db = getReadableDatabase();
+        ContentValues cv;
         try {
-            cv = makeData(m);
+            cv = makeContentValues(m);
         } catch (IllegalAccessException e) {
-            Log.e("sql", ""+e);
+            Log.e(TAG, "Failed to insert", e);
             return null;
         }
-        db.insert(m.getClass().getSimpleName(), null, cv);
+        long id = db.insert(m.getClass().getSimpleName(), null, cv);
+        if (id >= 0) {
+            DataHelper.assignPK(m, id);
+        }
         return m;
     }
 
@@ -67,7 +69,8 @@ public class SQLHelper extends SQLiteOpenHelper {
         List<T> datas = new ArrayList<T>();
 
         Set<String> fields = enumDataField(clazz).keySet();
-        Cursor cursor = getReadableDatabase().query(clazz.getSimpleName(),
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(clazz.getSimpleName(),
                 fields.toArray(new String[fields.size()])
                 , null, null, null, null, null);
 
@@ -91,29 +94,30 @@ public class SQLHelper extends SQLiteOpenHelper {
         return datas;
     }
 
-
     @NonNull
-    private static ContentValues makeData(Memory m) throws IllegalAccessException {
+    private static ContentValues makeContentValues(ModelData m) throws IllegalAccessException {
         ContentValues v = new ContentValues();
         for (Field f : m.getClass().getDeclaredFields()) {
             SqlInfo sqlInfo = f.getAnnotation(SqlInfo.class);
             if (sqlInfo == null) {
                 continue;
             }
-
+            if (sqlInfo.id()) {
+                continue; //smell
+            }
             if (f.getType() == String.class) {
                 v.put(f.getName(), (String) f.get(m));
             }
-            else if (f.getType() == Boolean.class) {
+            else if (f.getType() == Boolean.TYPE) {
                 v.put(f.getName(), (Boolean) f.get(m));
             }
             else if (f.getType() == Date.class) {
                 v.put(f.getName(), (Long) f.get(m));
             }
-            else if (f.getType() == Integer.class) {
+            else if (f.getType() == Integer.TYPE) {
                 v.put(f.getName(), (Integer) f.get(m));
             }
-            else if (f.getType() == Long.class) {
+            else if (f.getType() == Long.TYPE) {
                 v.put(f.getName(), (Long) f.get(m));
             }
             else if (f.getType().isEnum()) {
@@ -201,24 +205,24 @@ public class SQLHelper extends SQLiteOpenHelper {
                     f.set(res, cursor.getString(i++));
 
                 }
-                else if (f.getType() == Boolean.class) {
+                else if (f.getType() == Boolean.TYPE) {
                     f.set(res, cursor.getInt(i++) != 0);
                 }
                 else if (f.getType() == Date.class) {
                     f.set(res, new Date(cursor.getInt(i++)));
                 }
-                else if (f.getType() == Integer.class) {
+                else if (f.getType() == Integer.TYPE) {
                     f.set(res, cursor.getInt(i++));
                 }
-                else if (f.getType() == Long.class) {
+                else if (f.getType() == Long.TYPE) {
                     f.set(res, cursor.getInt(i++));
                 }
                 else if (f.getType().isEnum()) {
                     int ord = cursor.getInt(i++);
-                    f.set(res, f.getClass().getEnumConstants()[ord]);
+                    f.set(res, f.getType().getEnumConstants()[ord]);
                 }
                 else {
-                    assert false : "not supported";
+                    throw new AssertionError("not supported: "+f.getType());
                 }
             }
         } catch (IllegalAccessException e) {
@@ -229,22 +233,12 @@ public class SQLHelper extends SQLiteOpenHelper {
     }
 
     public boolean deleteByPK(Object memory) {
-        Pair<String, Object> pk = readPK(memory);
+        Pair<String, Object> pk = DataHelper.readPK(memory);
         return getReadableDatabase().delete(memory.getClass().getSimpleName(), pk.first + " = '" + pk.second + "'", null) > 0;
     }
 
-    private Pair<String, Object> readPK(Object o) {
-        for (Field f : o.getClass().getDeclaredFields()) {
-            SqlInfo sqlInfo = f.getAnnotation(SqlInfo.class);
-            if (sqlInfo == null || !sqlInfo.id()) {
-                continue;
-            }
-            try {
-                return Pair.create(f.getName(), f.get(o));
-            } catch (IllegalAccessException e) {
-                return null;
-            }
-        }
-        return null;
+    public static void drop(Context context) {
+        boolean res = context.deleteDatabase(DB_NAME);
+        Assert.assertTrue(res);
     }
 }

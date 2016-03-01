@@ -27,7 +27,7 @@ public class QuizzArrayAdapter extends ArrayAdapter<Quizz> {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         TextView textView = (TextView) inflater.inflate(R.layout.recollection_in_list, parent, false);
         Quizz item = getItem(position);
-        textView.setText(item.id);
+        textView.setText("memory id: " + item.memoryId);
         return textView;
     }
 }

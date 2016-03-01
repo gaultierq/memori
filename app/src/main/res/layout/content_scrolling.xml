@@ -11,7 +11,7 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/activity_memori_app"
-    tools:context=".MemoriAppActivity">
+    tools:context=".MainActivity">
 
     <ListView xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/memory_list"

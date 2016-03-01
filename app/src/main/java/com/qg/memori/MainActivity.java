@@ -23,9 +23,10 @@ import com.qg.memori.data.Memory;
 import com.qg.memori.data.Quizz;
 import com.qg.memori.data.SQLHelper;
 
+import java.util.Date;
 import java.util.List;
 
-public class MemoriAppActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
 
 
     protected ArrayAdapter adapter;
@@ -43,7 +44,7 @@ public class MemoriAppActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_memori_app);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar); // Attaching the layout to the toolbar object
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         createList();
@@ -54,9 +55,9 @@ public class MemoriAppActivity extends AppCompatActivity {
     private void createList() {
         switch (mode) {
             case MEMORY: {
-                List<Memory> memories = obtainSqlHelper().fetchData(Memory.class);
+                List<Memory> memories = obtainSLQHelper().fetchData(Memory.class);
                 ListView listView = (ListView) findViewById(R.id.memory_list);
-                adapter = new MemoriesArrayAdapter(MemoriAppActivity.this, memories);
+                adapter = new MemoriesArrayAdapter(MainActivity.this, memories);
                 listView.setAdapter(adapter);
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -73,9 +74,9 @@ public class MemoriAppActivity extends AppCompatActivity {
                 break;
             }
             case QUIZZ: {
-                List<Quizz> quizzs = obtainSqlHelper().fetchData(Quizz.class);
+                List<Quizz> quizzs = obtainSLQHelper().fetchData(Quizz.class);
                 ListView listView = (ListView) findViewById(R.id.memory_list);
-                adapter = new QuizzArrayAdapter(MemoriAppActivity.this, quizzs);
+                adapter = new QuizzArrayAdapter(MainActivity.this, quizzs);
                 listView.setAdapter(adapter);
                 break;
             }
@@ -83,7 +84,7 @@ public class MemoriAppActivity extends AppCompatActivity {
     }
 
     @NonNull
-    SQLHelper obtainSqlHelper() {
+    SQLHelper obtainSLQHelper() {
         return sql == null ? (sql = new SQLHelper(this)) : sql;
     }
 
@@ -112,12 +113,32 @@ public class MemoriAppActivity extends AppCompatActivity {
                 builder.setPositiveButton("Remember", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Memory added = SQLHelper.insertRecollection(context,
-                                answerBox.getText().toString(),
-                                questionBox.getText().toString());
 
-                        adapter.add(added);
-                        refresh();
+
+                        //inserting the memory
+                        Memory m = new Memory();
+                        m.question = questionBox.getText().toString();
+                        m.answer = answerBox.getText().toString();
+                        m.hint = null;
+
+                        SQLHelper sql = new SQLHelper(context);
+                        sql.getReadableDatabase().beginTransaction();
+                        try {
+                            Memory addedMemory = sql.insertData(m);
+                            if (addedMemory.id < 0) {
+                                throw new AssertionError("expecting id to be set");
+                            }
+                            //inserting a first quizz
+                            Quizz q = new Quizz();
+                            q.dueDate = new Date();
+                            q.memoryId = addedMemory.id;
+                            sql.insertData(q);
+                            sql.getReadableDatabase().setTransactionSuccessful();
+                        }
+                        finally {
+                            sql.getReadableDatabase().endTransaction();
+                        }
+                        createList();
                     }
                 });
 
@@ -162,6 +183,11 @@ public class MemoriAppActivity extends AppCompatActivity {
         }
         if (id == R.id.action_display_memory) {
             mode = ListMode.MEMORY;
+            createList();
+            return true;
+        }
+        if (id == R.id.drop_db) {
+            SQLHelper.drop(this);
             createList();
             return true;
         }

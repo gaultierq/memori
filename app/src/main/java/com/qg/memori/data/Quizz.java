@@ -9,13 +9,13 @@ import java.util.Date;
  */
 public class Quizz extends ModelData {
     @SqlInfo(id = true)
-    public int id;
+    public long id;
 
     @SqlInfo
-    public int memoryId;
+    public long memoryId;
 
     @SqlInfo
-    public QuizzType type;
+    public QuizzType type = QuizzType.TYPE_YOUR_ANSWER;
 
     public Date dueDate;
 
