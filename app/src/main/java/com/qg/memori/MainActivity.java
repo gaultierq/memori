@@ -18,6 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.qg.memori.data.Memory;
 import com.qg.memori.data.Quizz;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private SQLHelper sql;
 
     ListMode mode = ListMode.MEMORY;
+    private TextView listHeader;
 
     enum ListMode {
         MEMORY,
@@ -53,10 +55,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createList() {
+        ListView listView = (ListView) findViewById(R.id.memory_list);
+
+        //add title
+        if (listHeader == null) {
+            listHeader = new TextView(this);
+            listView.addHeaderView(listHeader);
+        }
+        listHeader.setText("" + mode);
+
         switch (mode) {
             case MEMORY: {
                 List<Memory> memories = obtainSLQHelper().fetchData(Memory.class);
-                ListView listView = (ListView) findViewById(R.id.memory_list);
                 adapter = new MemoriesArrayAdapter(MainActivity.this, memories);
                 listView.setAdapter(adapter);
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -75,7 +85,6 @@ public class MainActivity extends AppCompatActivity {
             }
             case QUIZZ: {
                 List<Quizz> quizzs = obtainSLQHelper().fetchData(Quizz.class);
-                ListView listView = (ListView) findViewById(R.id.memory_list);
                 adapter = new QuizzArrayAdapter(MainActivity.this, quizzs);
                 listView.setAdapter(adapter);
                 break;
@@ -134,8 +143,7 @@ public class MainActivity extends AppCompatActivity {
                             q.memoryId = addedMemory.id;
                             sql.insertData(q);
                             sql.getReadableDatabase().setTransactionSuccessful();
-                        }
-                        finally {
+                        } finally {
                             sql.getReadableDatabase().endTransaction();
                         }
                         createList();

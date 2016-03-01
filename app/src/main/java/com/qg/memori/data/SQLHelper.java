@@ -127,7 +127,7 @@ public class SQLHelper extends SQLiteOpenHelper {
                 }
             }
             else {
-                assert false : "not supported";
+                throwFieldNotSupported(f);
             }
         }
         return v;
@@ -168,7 +168,8 @@ public class SQLHelper extends SQLiteOpenHelper {
                 b.append(" integer");
             }
             else {
-                throw new AssertionError("not supported: "+f.getType());
+                return
+                        throwFieldNotSupported(f);
             }
             if (sqlInfo.id()) {
                 b.append(" primary key autoincrement");
@@ -178,6 +179,10 @@ public class SQLHelper extends SQLiteOpenHelper {
         String s = res.append(");").toString();
         Log.i("sql", "sql create command: " + s);
         return s;
+    }
+
+    private static String throwFieldNotSupported(Field f) {
+        throw new AssertionError("not supported: "+f.getType());
     }
 
     private Map<String, Class> enumDataField(Class clazz) {
@@ -222,7 +227,7 @@ public class SQLHelper extends SQLiteOpenHelper {
                     f.set(res, f.getType().getEnumConstants()[ord]);
                 }
                 else {
-                    throw new AssertionError("not supported: "+f.getType());
+                    throwFieldNotSupported(f);
                 }
             }
         } catch (IllegalAccessException e) {
