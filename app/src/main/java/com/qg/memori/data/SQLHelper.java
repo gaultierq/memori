@@ -26,14 +26,20 @@ import java.util.Set;
 
 public class SQLHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 8;
     public static final String TAG = "sql";
-    public static final String DB_NAME = "MEMORI_DB_3";
+    public static final String DB_NAME = "MEMORI_DB_4";
+    private Context context;
 
 
     public SQLHelper(Context context) {
-
         super(context, DB_NAME, null, DATABASE_VERSION);
+        this.context = context;
+    }
+
+    public static void updateModelByPk(SQLiteDatabase db, ModelData data) {
+        Pair<String, Object> pk = DataHelper.readPK(data);
+        db.update(data.getClass().getSimpleName(), makeContentValues(data), pk.first + "=" + pk.second, null);
     }
 
     @Override
@@ -44,44 +50,77 @@ public class SQLHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        Log.i(TAG, "upgrading db : " + oldVersion + " -> " + newVersion);
+        drop(context);
     }
 
     @Nullable
     public  <T extends  ModelData> T insertData(T m) {
         Assert.assertNotNull(m);
         SQLiteDatabase db = getReadableDatabase();
-        ContentValues cv;
-        try {
-            cv = makeContentValues(m);
-        } catch (IllegalAccessException e) {
-            Log.e(TAG, "Failed to insert", e);
-            return null;
-        }
-        long id = db.insert(m.getClass().getSimpleName(), null, cv);
+        long id = db.insert(m.getClass().getSimpleName(), null, makeContentValues(m));
         if (id >= 0) {
             DataHelper.assignPK(m, id);
         }
         return m;
     }
 
-    public <T extends ModelData> List<T> fetchData(Class<T> clazz) {
+    public <T extends ModelData> List<T> fetchSimilar(T obj) {
+        StringBuilder selection = new StringBuilder();
+        for (Field f : obj.getClass().getDeclaredFields()) {
+            if (f.getAnnotation(SqlInfo.class) == null) {
+                continue;
+            }
+            Object v;
+            Class<?> t = f.getType();
+            try {
+                if ((v = f.get(obj)) != null) {
+                    if (selection.length() > 0) {
+                        selection.append(" and ");
+                    }
+                    if (t == Boolean.TYPE || t == Boolean.class) {
+                        if ((Boolean)v) {
+                            selection.append(f.getName() + " = 1");
+                        }
+                        else {
+                            selection.append(f.getName() + " is null or " + f.getName() + " = 0");
+                        }
+                    }
+                    else {
+                        selection.append(f.getName() + " = " + v);
+                    }
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        return fetchData((Class<T>) obj.getClass(), selection.toString());
+    }
+
+    public <T extends ModelData> List<T> fetchData(Class<T> clazz, String selection) {
         List<T> datas = new ArrayList<T>();
 
         Set<String> fields = enumDataField(clazz).keySet();
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.query(clazz.getSimpleName(),
-                fields.toArray(new String[fields.size()])
-                , null, null, null, null, null);
+        Cursor cursor = db.query(
+                clazz.getSimpleName(),
+                fields.toArray(new String[fields.size()]),
+                selection,
+                null,
+                null,
+                null,
+                null);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             T res = null;
             try {
                 res = clazz.newInstance();
-            } catch (InstantiationException e) {
+            }
+            catch (InstantiationException e) {
                 e.printStackTrace();
-            } catch (IllegalAccessException e) {
+            }
+            catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
             if (readCursor(cursor, res)) {
@@ -95,42 +134,49 @@ public class SQLHelper extends SQLiteOpenHelper {
     }
 
     @NonNull
-    private static ContentValues makeContentValues(ModelData m) throws IllegalAccessException {
-        ContentValues v = new ContentValues();
-        for (Field f : m.getClass().getDeclaredFields()) {
-            SqlInfo sqlInfo = f.getAnnotation(SqlInfo.class);
-            if (sqlInfo == null) {
-                continue;
-            }
-            if (sqlInfo.id()) {
-                continue; //smell
-            }
-            if (f.getType() == String.class) {
-                v.put(f.getName(), (String) f.get(m));
-            }
-            else if (f.getType() == Boolean.TYPE) {
-                v.put(f.getName(), (Boolean) f.get(m));
-            }
-            else if (f.getType() == Date.class) {
-                v.put(f.getName(), (Long) f.get(m));
-            }
-            else if (f.getType() == Integer.TYPE) {
-                v.put(f.getName(), (Integer) f.get(m));
-            }
-            else if (f.getType() == Long.TYPE) {
-                v.put(f.getName(), (Long) f.get(m));
-            }
-            else if (f.getType().isEnum()) {
-                Enum e = ((Enum)f.get(m));
-                if (e != null) {
-                    v.put(f.getName(), e.ordinal());
+    public static ContentValues makeContentValues(ModelData m) {
+        try {
+            ContentValues v = new ContentValues();
+            for (Field f : m.getClass().getDeclaredFields()) {
+                SqlInfo sqlInfo = f.getAnnotation(SqlInfo.class);
+                if (sqlInfo == null) {
+                    continue;
+                }
+                if (sqlInfo.id()) {
+                    continue; //smell. FIXME
+                }
+                Class<?> t = f.getType();
+                if (t == String.class) {
+                    v.put(f.getName(), (String) f.get(m));
+                }
+                else if (t == Boolean.TYPE || t == Boolean.class) {
+                    v.put(f.getName(), (Boolean) f.get(m));
+                }
+                else if (t == Date.class) {
+                    v.put(f.getName(), (Long) f.get(m));
+                }
+                else if (t == Integer.TYPE || t == Integer.class) {
+                    v.put(f.getName(), (Integer) f.get(m));
+                }
+                else if (t == Long.TYPE || t == Long.class) {
+                    v.put(f.getName(), (Long) f.get(m));
+                }
+                else if (t.isEnum()) {
+                    Enum e = ((Enum) f.get(m));
+                    if (e != null) {
+                        v.put(f.getName(), e.ordinal());
+                    }
+                } else {
+                    throwFieldNotSupported(f);
                 }
             }
-            else {
-                throwFieldNotSupported(f);
-            }
+
+            return v;
         }
-        return v;
+        catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 
@@ -149,27 +195,27 @@ public class SQLHelper extends SQLiteOpenHelper {
                 b.append(", ");
             }
             b.append(f.getName());
-            if (f.getType() == String.class) {
+            Class<?> t = f.getType();
+            if (t == String.class) {
                 b.append(" string");
             }
-            else if (f.getType() == Boolean.TYPE) {
+            else if (t == Boolean.TYPE || t == Boolean.class) {
                 b.append(" boolean");
             }
-            else if (f.getType() == Date.class) {
+            else if (t == Date.class) {
                 b.append(" datetime");
             }
-            else if (f.getType() == Integer.TYPE) {
+            else if (t == Integer.TYPE || t == Integer.class) {
                 b.append(" integer");
             }
-            else if (f.getType() == Long.TYPE) {
+            else if (t == Long.TYPE || t == Long.class) {
                 b.append(" integer");
             }
-            else if (f.getType().isEnum()) {
+            else if (t.isEnum()) {
                 b.append(" integer");
             }
             else {
-                return
-                        throwFieldNotSupported(f);
+                throwFieldNotSupported(f);
             }
             if (sqlInfo.id()) {
                 b.append(" primary key autoincrement");
@@ -205,26 +251,25 @@ public class SQLHelper extends SQLiteOpenHelper {
                 if (sqlInfo == null) {
                     continue;
                 }
-
-                if (f.getType() == String.class) {
+                Class<?> t = f.getType();
+                if (t == String.class) {
                     f.set(res, cursor.getString(i++));
-
                 }
-                else if (f.getType() == Boolean.TYPE) {
+                else if (t == Boolean.TYPE || t == Boolean.class) {
                     f.set(res, cursor.getInt(i++) != 0);
                 }
-                else if (f.getType() == Date.class) {
+                else if (t == Date.class) {
                     f.set(res, new Date(cursor.getInt(i++)));
                 }
-                else if (f.getType() == Integer.TYPE) {
+                else if (t == Integer.TYPE || t == Integer.class) {
                     f.set(res, cursor.getInt(i++));
                 }
-                else if (f.getType() == Long.TYPE) {
-                    f.set(res, cursor.getInt(i++));
+                else if (t == Long.TYPE || t == Long.class) {
+                    f.set(res, Long.valueOf(cursor.getInt(i++)));
                 }
-                else if (f.getType().isEnum()) {
+                else if (t.isEnum()) {
                     int ord = cursor.getInt(i++);
-                    f.set(res, f.getType().getEnumConstants()[ord]);
+                    f.set(res, t.getEnumConstants()[ord]);
                 }
                 else {
                     throwFieldNotSupported(f);
@@ -237,9 +282,9 @@ public class SQLHelper extends SQLiteOpenHelper {
         return true;
     }
 
-    public boolean deleteByPK(Object memory) {
-        Pair<String, Object> pk = DataHelper.readPK(memory);
-        return getReadableDatabase().delete(memory.getClass().getSimpleName(), pk.first + " = '" + pk.second + "'", null) > 0;
+    public boolean deleteByPK(ModelData data) {
+        Pair<String, Object> pk = DataHelper.readPK(data);
+        return getReadableDatabase().delete(data.getClass().getSimpleName(), pk.first + " = '" + pk.second + "'", null) > 0;
     }
 
     public static void drop(Context context) {

@@ -9,15 +9,15 @@ import java.util.Date;
  */
 public class Quizz extends ModelData {
     @SqlInfo(id = true)
-    public long id;
+    public Long id;
 
     @SqlInfo
-    public long memoryId;
+    public Long memoryId;
 
     @SqlInfo
     public QuizzType type = QuizzType.TYPE_YOUR_ANSWER;
 
     public Date dueDate;
 
-    public int score; // 0-10
+    public Integer score; // 0-10
 }

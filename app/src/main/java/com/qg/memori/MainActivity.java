@@ -1,12 +1,11 @@
 package com.qg.memori;
 
 import android.app.AlertDialog;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -21,6 +20,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.qg.memori.data.Memory;
+import com.qg.memori.data.ModelData;
 import com.qg.memori.data.Quizz;
 import com.qg.memori.data.SQLHelper;
 
@@ -31,10 +31,14 @@ public class MainActivity extends AppCompatActivity {
 
 
     protected ArrayAdapter adapter;
-    private SQLHelper sql;
 
     ListMode mode = ListMode.MEMORY;
     private TextView listHeader;
+
+    @Nullable
+    static <T extends ModelData> T readModel(Bundle b, Class<T> modelToRead) {
+        return modelToRead.cast(b.getSerializable(modelToRead.getSimpleName()));
+    }
 
     enum ListMode {
         MEMORY,
@@ -54,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         configAddButton();
     }
 
-    private void createList() {
+    public void createList() {
         ListView listView = (ListView) findViewById(R.id.memory_list);
 
         //add title
@@ -66,35 +70,40 @@ public class MainActivity extends AppCompatActivity {
 
         switch (mode) {
             case MEMORY: {
-                List<Memory> memories = obtainSLQHelper().fetchData(Memory.class);
+                Memory m = new Memory();
+                m.deleted = false;
+                List<Memory> memories = new SQLHelper(this).fetchSimilar(m);
                 adapter = new MemoriesArrayAdapter(MainActivity.this, memories);
                 listView.setAdapter(adapter);
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Memory mem = (Memory) adapter.getItem(position);
-                        MemoryConfigFragment fragment = new MemoryConfigFragment();
-                        fragment.setMemory(mem);
-                        FragmentManager fragmentManager = getFragmentManager();
-                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                        fragmentTransaction.add(R.id.fragment_container, fragment);
-                        fragmentTransaction.commit();
+                        Intent intent = new Intent(MainActivity.this, MemoryDetailActivity.class);
+                        intent.putExtras(putInBundle(new Bundle(), (Memory) adapter.getItem(position - 1)));
+                        MainActivity.this.startActivity(intent);
                     }
                 });
                 break;
             }
             case QUIZZ: {
-                List<Quizz> quizzs = obtainSLQHelper().fetchData(Quizz.class);
-                adapter = new QuizzArrayAdapter(MainActivity.this, quizzs);
+                List<Quizz> quizzes = new SQLHelper(this).fetchData(Quizz.class, null);
+                adapter = new QuizzArrayAdapter(MainActivity.this, quizzes);
                 listView.setAdapter(adapter);
+                listView.setOnItemClickListener(null);
                 break;
             }
         }
     }
 
-    @NonNull
-    SQLHelper obtainSLQHelper() {
-        return sql == null ? (sql = new SQLHelper(this)) : sql;
+    public static Bundle putInBundle(Bundle bundle, ModelData v) {
+        bundle.putSerializable(v.getClass().getSimpleName(), v);
+        return bundle;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        createList();
     }
 
     private void configAddButton() {
@@ -122,7 +131,6 @@ public class MainActivity extends AppCompatActivity {
                 builder.setPositiveButton("Remember", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
 
                         //inserting the memory
                         Memory m = new Memory();
@@ -159,19 +167,6 @@ public class MainActivity extends AppCompatActivity {
                 builder.show();
             }
         });
-    }
-
-    void refresh() {
-        if (adapter != null) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (adapter != null) {
-                        adapter.notifyDataSetChanged();
-                    }
-                }
-            });
-        }
     }
 
     @Override

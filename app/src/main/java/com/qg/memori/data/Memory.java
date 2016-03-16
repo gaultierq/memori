@@ -7,12 +7,17 @@ package com.qg.memori.data;
 
 public class Memory extends ModelData  {
     @SqlInfo(id = true)
-    public long id;
+    public Long id;
 
     @SqlInfo
     public String question;
+
     @SqlInfo
     public String answer;
+
     @SqlInfo
     public String hint;
+
+    @SqlInfo
+    public Boolean deleted;
 }

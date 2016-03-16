@@ -13,7 +13,7 @@ public class DataHelper {
 
     public static final String TAG = "DataHelper";
 
-    public static Pair<String, Object> readPK(Object o) {
+    public static Pair<String, Object> readPK(ModelData o) {
         Field fi = getPkField(o);
         if(fi != null) {
             try {
