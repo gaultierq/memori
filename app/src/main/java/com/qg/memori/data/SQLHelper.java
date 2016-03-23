@@ -26,7 +26,7 @@ import java.util.Set;
 
 public class SQLHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 10;
     public static final String TAG = "sql";
     public static final String DB_NAME = "MEMORI_DB_4";
     private Context context;
@@ -153,7 +153,7 @@ public class SQLHelper extends SQLiteOpenHelper {
                     v.put(f.getName(), (Boolean) f.get(m));
                 }
                 else if (t == Date.class) {
-                    v.put(f.getName(), (Long) f.get(m));
+                    v.put(f.getName(), ((Date) f.get(m)).getTime());
                 }
                 else if (t == Integer.TYPE || t == Integer.class) {
                     v.put(f.getName(), (Integer) f.get(m));
@@ -259,7 +259,7 @@ public class SQLHelper extends SQLiteOpenHelper {
                     f.set(res, cursor.getInt(i++) != 0);
                 }
                 else if (t == Date.class) {
-                    f.set(res, new Date(cursor.getInt(i++)));
+                    f.set(res, new Date(cursor.getLong(i++)));
                 }
                 else if (t == Integer.TYPE || t == Integer.class) {
                     f.set(res, cursor.getInt(i++));

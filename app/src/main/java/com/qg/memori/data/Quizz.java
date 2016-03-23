@@ -17,6 +17,7 @@ public class Quizz extends ModelData {
     @SqlInfo
     public QuizzType type = QuizzType.TYPE_YOUR_ANSWER;
 
+    @SqlInfo
     public Date dueDate;
 
     public Integer score; // 0-10
