@@ -49,4 +49,27 @@ public class DataHelper {
         }
         return fi;
     }
+
+    public static String toString(Object o) {
+        if (o instanceof ModelData) {
+            StringBuilder b = new StringBuilder();
+            for (Field f : o.getClass().getDeclaredFields()) {
+                SqlInfo sqlInfo = f.getAnnotation(SqlInfo.class);
+                if (sqlInfo == null) {
+                    continue;
+                }
+                if (b.length() > 0) {
+                    b.append(" | ");
+                }
+                try {
+                    b.append(f.getName() + "=" + f.get(o));
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                    return "error";
+                }
+            }
+            return b.toString();
+        }
+        return null;
+    }
 }

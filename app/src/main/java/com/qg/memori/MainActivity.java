@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                 Memory m = new Memory();
                 m.deleted = false;
                 List<Memory> memories = new SQLHelper(this).fetchSimilar(m);
-                adapter = new MemoriesArrayAdapter(MainActivity.this, memories);
+                adapter = new ModelDataArrayAdapter(MainActivity.this, memories);
                 listView.setAdapter(adapter);
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
             }
             case QUIZZ: {
                 List<Quizz> quizzes = new SQLHelper(this).fetchData(Quizz.class, null);
-                adapter = new QuizzArrayAdapter(MainActivity.this, quizzes);
+                adapter = new ModelDataArrayAdapter(MainActivity.this, quizzes);
                 listView.setAdapter(adapter);
                 listView.setOnItemClickListener(null);
                 break;
