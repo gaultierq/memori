@@ -26,7 +26,7 @@ import java.util.Set;
 
 public class SQLHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 11;
     public static final String TAG = "sql";
     public static final String DB_NAME = "MEMORI_DB_4";
     private Context context;

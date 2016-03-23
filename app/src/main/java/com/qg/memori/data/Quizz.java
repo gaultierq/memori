@@ -20,5 +20,6 @@ public class Quizz extends ModelData {
     @SqlInfo
     public Date dueDate;
 
+    @SqlInfo
     public Integer score; // 0-10
 }
