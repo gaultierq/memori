@@ -18,12 +18,15 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.qg.memori.alarm.AlarmManager;
 import com.qg.memori.data.Memory;
 import com.qg.memori.data.ModelData;
 import com.qg.memori.data.Quizz;
 import com.qg.memori.data.SQLHelper;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -35,10 +38,6 @@ public class MainActivity extends AppCompatActivity {
     ListMode mode = ListMode.MEMORY;
     private TextView listHeader;
 
-    @Nullable
-    static <T extends ModelData> T readModel(Bundle b, Class<T> modelToRead) {
-        return modelToRead.cast(b.getSerializable(modelToRead.getSimpleName()));
-    }
 
     enum ListMode {
         MEMORY,
@@ -98,6 +97,31 @@ public class MainActivity extends AppCompatActivity {
     public static Bundle putInBundle(Bundle bundle, ModelData v) {
         bundle.putSerializable(v.getClass().getSimpleName(), v);
         return bundle;
+    }
+
+    public static <T extends ModelData> Bundle putListInBundle(Bundle bundle, ArrayList<T> dataList) {
+        if (dataList != null) {
+            T t = null;
+            for (int i = 0; i < dataList.size(); i++) {
+                if ((t = dataList.get(i)) != null) {
+                    break;
+                }
+            }
+            if (t != null) {
+                bundle.putSerializable(t.getClass().getSimpleName() + "_list", dataList);
+            }
+        }
+        return bundle;
+    }
+
+    @Nullable
+    static <T extends ModelData> T readModel(Bundle b, Class<T> modelToRead) {
+        return modelToRead.cast(b.getSerializable(modelToRead.getSimpleName()));
+    }
+
+    @Nullable
+    static <T extends ModelData> List<T> readListModel(Bundle b, Class<T> modelToRead) {
+        return ArrayList.class.cast(b.getSerializable(modelToRead.getSimpleName() + "_list"));
     }
 
     @Override
@@ -194,7 +218,14 @@ public class MainActivity extends AppCompatActivity {
             createList();
             return true;
         }
+        if (id == R.id.alarm_in_5s) {
+            AlarmManager.scheduleNextAlarm(this, 5000);
+            Toast.makeText(this, "alarm in 5 seconds!", Toast.LENGTH_LONG);
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }
+
+
 }

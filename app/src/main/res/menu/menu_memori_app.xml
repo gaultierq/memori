@@ -17,4 +17,9 @@
         android:title="Drop db"
         android:orderInCategory="100"
         app:showAsAction="never" />
+
+    <item android:id="@+id/alarm_in_5s"
+        android:title="Prepare alarm in 5 second"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
 </menu>

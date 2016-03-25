@@ -94,22 +94,40 @@ public class SQLHelper extends SQLiteOpenHelper {
                 e.printStackTrace();
             }
         }
-        return fetchData((Class<T>) obj.getClass(), selection.toString());
+
+        QueryParams params = new QueryParams();
+        params.selection = selection.toString();
+        return fetchData((Class<T>) obj.getClass(), params);
     }
 
-    public <T extends ModelData> List<T> fetchData(Class<T> clazz, String selection) {
-        List<T> datas = new ArrayList<T>();
+    public static class QueryParams {
+        public String table;
+        public String[] columns;
+        public String selection;
+        public String[] selectionArgs;
+        public String groupBy;
+        public String having;
+        public String orderBy;
+        public String limit;
+    }
 
+    public <T extends ModelData> List<T> fetchData(Class<T> clazz, QueryParams params) {
+        List<T> datas = new ArrayList<T>();
+        if (params == null) {
+            params = new QueryParams();
+        }
         Set<String> fields = enumDataField(clazz).keySet();
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.query(
                 clazz.getSimpleName(),
                 fields.toArray(new String[fields.size()]),
-                selection,
-                null,
-                null,
-                null,
-                null);
+                params.selection,
+                params.selectionArgs,
+                params.groupBy,
+                params.having,
+                params.orderBy,
+                params.limit
+        );
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -231,7 +249,7 @@ public class SQLHelper extends SQLiteOpenHelper {
         throw new AssertionError("not supported: "+f.getType());
     }
 
-    private Map<String, Class> enumDataField(Class clazz) {
+    private static Map<String, Class> enumDataField(Class clazz) {
         Map<String, Class> res = new LinkedHashMap<>();
         for (Field f : clazz.getDeclaredFields()) {
             SqlInfo sqlInfo = f.getAnnotation(SqlInfo.class);
