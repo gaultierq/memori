@@ -8,11 +8,13 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.widget.Toast;
 
+import com.j256.ormlite.stmt.QueryBuilder;
 import com.qg.memori.MainActivity;
 import com.qg.memori.TakeTheQuizzActivity;
-import com.qg.memori.data.Quizz;
+import com.qg.memori.data.QuizzData;
 import com.qg.memori.data.SQLHelper;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,21 +34,30 @@ public class AlarmManager extends BroadcastReceiver {
         long now = System.currentTimeMillis();
 
         SQLHelper sql = new SQLHelper(context);
-        final List<Quizz> quizzesToTake;
+        final List<QuizzData> quizzesToTake;
         {
-            SQLHelper.QueryParams params = new SQLHelper.QueryParams();
-            params.selection = "dueDate < " + now;
-            quizzesToTake = sql.fetchData(Quizz.class, params);
+            try {
+                quizzesToTake = sql.getQuizzDao().queryBuilder().where().lt("dueDate", now).query();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return;
+            }
         }
 
         //schedule next alarm
         {
-            SQLHelper.QueryParams params = new SQLHelper.QueryParams();
-            params.selection = "dueDate > " + now;
-            params.orderBy = "dueDate DESC";
-            params.limit = "1";
+            final List<QuizzData> next;
+            try {
+                QueryBuilder<QuizzData, Integer> builder = sql.getQuizzDao().queryBuilder();
+                builder.where().gt("dueDate", now);
+                builder.orderBy("dueDate", false);
+                builder.limit(1L);
+                next = builder.query();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return;
+            }
 
-            List<Quizz> next = sql.fetchData(Quizz.class, params);
             long time = 0;
             if (next.size() > 0) {
                 time = next.get(0).dueDate.getTime() - now;
@@ -56,7 +67,7 @@ public class AlarmManager extends BroadcastReceiver {
 
         if (quizzesToTake.size() > 0) {
             Intent ii = new Intent(context, TakeTheQuizzActivity.class);
-            ii.putExtras(MainActivity.putListInBundle(new Bundle(), new ArrayList<Quizz>(quizzesToTake)));
+            ii.putExtras(MainActivity.putListInBundle(new Bundle(), new ArrayList<QuizzData>(quizzesToTake)));
             ii.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //TODO: notification instead
             context.startActivity(ii);
         }

@@ -18,8 +18,8 @@
         android:orderInCategory="100"
         app:showAsAction="never" />
 
-    <item android:id="@+id/alarm_in_5s"
-        android:title="Prepare alarm in 5 second"
+    <item android:id="@+id/alarm"
+        android:title="alarm now"
         android:orderInCategory="100"
         app:showAsAction="never" />
 </menu>

@@ -55,6 +55,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/assets" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/aidl" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/lib/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/jni" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/rs" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/androidTest/res" type="java-test-resource" />
@@ -95,5 +96,9 @@
     <orderEntry type="library" exported="" name="appcompat-v7-23.1.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-basement-8.1.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-appindexing-8.1.0" level="project" />
+    <orderEntry type="library" exported="" name="ormlite-core-4.49-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="1_ormlite-core-4.49-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="ormlite-android-4.49-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="1_ormlite-android-4.49-SNAPSHOT" level="project" />
   </component>
 </module>

@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.j256.ormlite.table.TableUtils;
 import com.qg.memori.data.DataHelper;
 import com.qg.memori.data.ModelData;
 
@@ -26,8 +27,9 @@ public class ModelDataArrayAdapter<T extends ModelData> extends ArrayAdapter<T> 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        TextView textView = (TextView) inflater.inflate(R.layout.recollection_in_list, parent, false);
+        TextView textView = (TextView) inflater.inflate(R.layout.list_text, parent, false);
         textView.setText(DataHelper.toString(getItem(position)));
+
         return textView;
     }
 }

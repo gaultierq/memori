@@ -6,9 +6,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
-import com.qg.memori.data.Memory;
-import com.qg.memori.data.Quizz;
+import com.qg.memori.data.MemoryData;
+import com.qg.memori.data.QuizzData;
 import com.qg.memori.data.SQLHelper;
+
+import java.sql.SQLException;
 
 public class MemoryDetailActivity extends AppCompatActivity {
 
@@ -17,7 +19,7 @@ public class MemoryDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.memory_detail_activity);
 
-        final Memory memory  = MainActivity.readModel(getIntent().getExtras(), Memory.class);
+        final MemoryData memory  = MainActivity.readModel(getIntent().getExtras(), MemoryData.class);
 
         final TextView memQuestion = (TextView) findViewById(R.id.memory_question);
         memQuestion.setText(memory.question);
@@ -32,12 +34,12 @@ public class MemoryDetailActivity extends AppCompatActivity {
                 try {
                     //mark memory as deleted
                     memory.deleted = true;
-                    SQLHelper.updateModelByPk(db, memory);
+                    sql.getMemoryDao().update(memory);
 
-                    //sql.deleteByPK(memory);
-
-                    db.delete(Quizz.class.getSimpleName(), "memoryId = '" + memory.id + "'", null);
+                    db.delete(QuizzData.class.getSimpleName(), "memoryId = '" + memory.id + "'", null);
                     db.setTransactionSuccessful();
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 } finally {
                     db.endTransaction();
                 }

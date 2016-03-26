@@ -21,11 +21,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.qg.memori.alarm.AlarmManager;
-import com.qg.memori.data.Memory;
+import com.qg.memori.data.MemoryData;
 import com.qg.memori.data.ModelData;
-import com.qg.memori.data.Quizz;
+import com.qg.memori.data.QuizzData;
 import com.qg.memori.data.SQLHelper;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -69,23 +70,31 @@ public class MainActivity extends AppCompatActivity {
 
         switch (mode) {
             case MEMORY: {
-                Memory m = new Memory();
-                m.deleted = false;
-                List<Memory> memories = new SQLHelper(this).fetchSimilar(m);
+                List<MemoryData> memories = null;
+                try {
+                    memories = new SQLHelper(this).getMemoryDao().queryForEq("deleted", false);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 adapter = new ModelDataArrayAdapter(MainActivity.this, memories);
                 listView.setAdapter(adapter);
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Intent intent = new Intent(MainActivity.this, MemoryDetailActivity.class);
-                        intent.putExtras(putInBundle(new Bundle(), (Memory) adapter.getItem(position - 1)));
+                        intent.putExtras(putInBundle(new Bundle(), (MemoryData) adapter.getItem(position - 1)));
                         MainActivity.this.startActivity(intent);
                     }
                 });
                 break;
             }
             case QUIZZ: {
-                List<Quizz> quizzes = new SQLHelper(this).fetchData(Quizz.class, null);
+                List<QuizzData> quizzes = null;
+                try {
+                    quizzes = new SQLHelper(this).getQuizzDao().queryForAll();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 adapter = new ModelDataArrayAdapter(MainActivity.this, quizzes);
                 listView.setAdapter(adapter);
                 listView.setOnItemClickListener(null);
@@ -157,26 +166,30 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
 
                         //inserting the memory
-                        Memory m = new Memory();
+                        MemoryData m = new MemoryData();
                         m.question = questionBox.getText().toString();
                         m.answer = answerBox.getText().toString();
                         m.hint = null;
+                        m.deleted = false;
 
                         SQLHelper sql = new SQLHelper(context);
-                        sql.getReadableDatabase().beginTransaction();
+                        //sql.getReadableDatabase().beginTransaction();
                         try {
-                            Memory addedMemory = sql.insertData(m);
-                            if (addedMemory.id < 0) {
-                                throw new AssertionError("expecting id to be set");
+                            int cr = sql.getMemoryDao().create(m);
+                            if (cr != 1) {
+                                throw new AssertionError("insertion has failed");
                             }
                             //inserting a first quizz
-                            Quizz q = new Quizz();
+                            QuizzData q = new QuizzData();
                             q.dueDate = new Date();
-                            q.memoryId = addedMemory.id;
-                            sql.insertData(q);
-                            sql.getReadableDatabase().setTransactionSuccessful();
+                            q.memoryId = m.id;
+                            sql.getQuizzDao().create(q);
+
+                            //sql.getReadableDatabase().setTransactionSuccessful();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
                         } finally {
-                            sql.getReadableDatabase().endTransaction();
+                            //sql.getReadableDatabase().endTransaction();
                         }
                         createList();
                     }
@@ -218,9 +231,9 @@ public class MainActivity extends AppCompatActivity {
             createList();
             return true;
         }
-        if (id == R.id.alarm_in_5s) {
-            AlarmManager.scheduleNextAlarm(this, 5000);
-            Toast.makeText(this, "alarm in 5 seconds!", Toast.LENGTH_LONG);
+        if (id == R.id.alarm) {
+            AlarmManager.scheduleNextAlarm(this, 1);
+            Toast.makeText(this, "alarm in 5 seconds!", Toast.LENGTH_LONG).show();
             return true;
         }
 

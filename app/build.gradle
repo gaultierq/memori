@@ -17,6 +17,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    sourceSets {
+        main.java.srcDirs += 'lib/src/'
+    }
 }
 
 dependencies {
@@ -25,4 +29,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
     compile 'com.google.android.gms:play-services-appindexing:8.1.0'
+    compile files('/Users/q/projects/memori/libs/ormlite-android-4.49-SNAPSHOT.jar')
+    compile files('/Users/q/projects/memori/libs/ormlite-core-4.49-SNAPSHOT.jar')
 }
