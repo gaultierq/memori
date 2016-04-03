@@ -5,21 +5,21 @@
 
     <item android:id="@+id/action_display_quizz"
         android:title="Display quizz"
-        android:orderInCategory="100"
         app:showAsAction="never" />
 
     <item android:id="@+id/action_display_memory"
         android:title="Display memory"
-        android:orderInCategory="100"
         app:showAsAction="never" />
 
     <item android:id="@+id/drop_db"
         android:title="Drop db"
-        android:orderInCategory="100"
         app:showAsAction="never" />
 
     <item android:id="@+id/alarm"
         android:title="alarm now"
-        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/drop_and_add"
+        android:title="drop and add"
         app:showAsAction="never" />
 </menu>

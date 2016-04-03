@@ -165,32 +165,12 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        //inserting the memory
-                        MemoryData m = new MemoryData();
-                        m.question = questionBox.getText().toString();
-                        m.answer = answerBox.getText().toString();
-                        m.hint = null;
-                        m.deleted = false;
+                        String question = questionBox.getText().toString();
+                        String answer = answerBox.getText().toString();
 
-                        SQLHelper sql = new SQLHelper(context);
-                        //sql.getReadableDatabase().beginTransaction();
-                        try {
-                            int cr = sql.getMemoryDao().create(m);
-                            if (cr != 1) {
-                                throw new AssertionError("insertion has failed");
-                            }
-                            //inserting a first quizz
-                            QuizzData q = new QuizzData();
-                            q.dueDate = new Date();
-                            q.memoryId = m.id;
-                            sql.getQuizzDao().create(q);
+                        insertNewMemory(question, answer, context);
 
-                            //sql.getReadableDatabase().setTransactionSuccessful();
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        } finally {
-                            //sql.getReadableDatabase().endTransaction();
-                        }
+
                         createList();
                     }
                 });
@@ -204,6 +184,36 @@ public class MainActivity extends AppCompatActivity {
                 builder.show();
             }
         });
+    }
+
+    private static void insertNewMemory(String question, String answer, Context context) {
+        //inserting the memory
+        MemoryData m = new MemoryData();
+        m.question = question;
+        m.answer = answer;
+        m.hint = null;
+        m.deleted = false;
+
+        SQLHelper sql = new SQLHelper(context);
+        //sql.getReadableDatabase().beginTransaction();
+        try {
+            int cr = sql.getMemoryDao().create(m);
+            if (cr != 1 &&
+                    m.id > 0) {
+                throw new AssertionError("insertion has failed");
+            }
+            //inserting a first quizz
+            QuizzData q = new QuizzData();
+            q.dueDate = new Date();
+            q.memoryId = m.id;
+            sql.getQuizzDao().create(q);
+
+            //sql.getReadableDatabase().setTransactionSuccessful();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            //sql.getReadableDatabase().endTransaction();
+        }
     }
 
     @Override
@@ -226,6 +236,12 @@ public class MainActivity extends AppCompatActivity {
             createList();
             return true;
         }
+        if (id == R.id.drop_and_add) {
+            SQLHelper.drop(this);
+            insertNewMemory("dummy question", "dummy answer", this);
+            createList();
+            return true;
+        }
         if (id == R.id.drop_db) {
             SQLHelper.drop(this);
             createList();
@@ -233,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if (id == R.id.alarm) {
             AlarmManager.scheduleNextAlarm(this, 1);
-            Toast.makeText(this, "alarm in 5 seconds!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "alarm in 1 seconds!", Toast.LENGTH_LONG).show();
             return true;
         }
 

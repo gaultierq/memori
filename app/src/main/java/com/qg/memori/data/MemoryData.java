@@ -9,8 +9,8 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "memory")
 public class MemoryData extends ModelData  {
-    @DatabaseField(id = true)
-    public Long id;
+    @DatabaseField(generatedId = true)
+    public long id;
 
     @DatabaseField
     public String question;

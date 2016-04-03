@@ -25,7 +25,7 @@ public class TakeTheQuizzActivity extends AppCompatActivity {
 
         List<QuizzData> quizzes = MainActivity.readListModel(getIntent().getExtras(), QuizzData.class);
         if (quizzes == null || quizzes.isEmpty()) {
-            Toast.makeText(this, "no quizz to be taken", Toast.LENGTH_LONG);
+            Toast.makeText(this, "no quizz to be taken", Toast.LENGTH_LONG).show();
         }
         else {
             ArrayAdapter<QuizzData> adapter = new ArrayAdapter<QuizzData>(this, -1, quizzes) {
@@ -34,8 +34,8 @@ public class TakeTheQuizzActivity extends AppCompatActivity {
                 public View getView(int position, View convertView, ViewGroup parent) {
                     LayoutInflater inflater = (LayoutInflater) TakeTheQuizzActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     TextView textView = (TextView) inflater.inflate(R.layout.list_text, parent, false);
-
-                    //textView.setText();
+                    QuizzData q = getItem(position);
+                    textView.setText(q.memory.question);
                     return textView;
                 }
 

@@ -22,8 +22,8 @@ public class SQLHelper extends OrmLiteSqliteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     public static final String DB_NAME = "memory.db";
 
-    private Dao<QuizzData, Integer> quizzDao;
-    private Dao<MemoryData, Integer> memoryDao;
+    private Dao<QuizzData, Long> quizzDao;
+    private Dao<MemoryData, Long> memoryDao;
 
 
     public SQLHelper(Context context) {
@@ -56,14 +56,14 @@ public class SQLHelper extends OrmLiteSqliteOpenHelper {
         }
     }
 
-    public Dao<QuizzData, Integer> getQuizzDao() throws SQLException {
+    public Dao<QuizzData, Long> getQuizzDao() throws SQLException {
         if (quizzDao == null) {
             quizzDao = getDao(QuizzData.class);
         }
         return quizzDao;
     }
 
-    public Dao<MemoryData, Integer> getMemoryDao() throws SQLException {
+    public Dao<MemoryData, Long> getMemoryDao() throws SQLException {
         if (memoryDao == null) {
             memoryDao = getDao(MemoryData.class);
         }
