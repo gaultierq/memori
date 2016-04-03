@@ -17,7 +17,7 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.qg.memori.MainActivity;
 import com.qg.memori.R;
-import com.qg.memori.TakeTheQuizzActivity;
+import com.qg.memori.TestActivity;
 import com.qg.memori.data.MemoryData;
 import com.qg.memori.data.QuizzData;
 import com.qg.memori.data.SQLHelper;
@@ -70,7 +70,7 @@ public class AlarmManager extends BroadcastReceiver {
         int numQuizzes = quizzesToTake.size();
         notifBuilder.setContentText("You have " + numQuizzes + " pending quizz").setNumber(numQuizzes);
 
-        Intent ttqa = new Intent(context, TakeTheQuizzActivity.class);
+        Intent ttqa = new Intent(context, TestActivity.class);
         ttqa.putExtras(MainActivity.putListInBundle(new Bundle(), new ArrayList<QuizzData>(quizzesToTake)));
         ttqa.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 

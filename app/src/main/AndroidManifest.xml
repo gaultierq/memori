@@ -31,7 +31,7 @@
             android:name=".alarm.AlarmManager"
             android:process=":remote" />
 
-        <activity android:name=".TakeTheQuizzActivity"></activity>
+        <activity android:name=".TestActivity"></activity>
     </application>
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
