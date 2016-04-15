@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
+import com.qg.memori.data.DataHelper;
 import com.qg.memori.data.MemoryData;
 import com.qg.memori.data.QuizzData;
 import com.qg.memori.data.SQLHelper;
@@ -19,7 +20,7 @@ public class MemoryDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.memory_detail_activity);
 
-        final MemoryData memory  = MainActivity.readModel(getIntent().getExtras(), MemoryData.class);
+        final MemoryData memory  = DataHelper.readData(getIntent().getExtras(), MemoryData.class);
 
         final TextView memQuestion = (TextView) findViewById(R.id.memory_question);
         memQuestion.setText(memory.question);

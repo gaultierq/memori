@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -21,13 +20,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.qg.memori.alarm.AlarmManager;
+import com.qg.memori.data.DataHelper;
 import com.qg.memori.data.MemoryData;
-import com.qg.memori.data.ModelData;
 import com.qg.memori.data.QuizzData;
 import com.qg.memori.data.SQLHelper;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -82,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Intent intent = new Intent(MainActivity.this, MemoryDetailActivity.class);
-                        intent.putExtras(putInBundle(new Bundle(), (MemoryData) adapter.getItem(position - 1)));
+                        intent.putExtras(DataHelper.putInBundle(new Bundle(), (MemoryData) adapter.getItem(position - 1)));
                         MainActivity.this.startActivity(intent);
                     }
                 });
@@ -101,36 +99,6 @@ public class MainActivity extends AppCompatActivity {
                 break;
             }
         }
-    }
-
-    public static Bundle putInBundle(Bundle bundle, ModelData v) {
-        bundle.putSerializable(v.getClass().getSimpleName(), v);
-        return bundle;
-    }
-
-    public static <T extends ModelData> Bundle putListInBundle(Bundle bundle, ArrayList<T> dataList) {
-        if (dataList != null) {
-            T t = null;
-            for (int i = 0; i < dataList.size(); i++) {
-                if ((t = dataList.get(i)) != null) {
-                    break;
-                }
-            }
-            if (t != null) {
-                bundle.putSerializable(t.getClass().getSimpleName() + "_list", dataList);
-            }
-        }
-        return bundle;
-    }
-
-    @Nullable
-    static <T extends ModelData> T readModel(Bundle b, Class<T> modelToRead) {
-        return modelToRead.cast(b.getSerializable(modelToRead.getSimpleName()));
-    }
-
-    @Nullable
-    static <T extends ModelData> List<T> readListModel(Bundle b, Class<T> modelToRead) {
-        return ArrayList.class.cast(b.getSerializable(modelToRead.getSimpleName() + "_list"));
     }
 
     @Override
