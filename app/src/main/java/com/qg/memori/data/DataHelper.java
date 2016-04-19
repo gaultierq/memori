@@ -42,6 +42,12 @@ public class DataHelper {
         return bundle;
     }
 
+    public static <T extends ModelData> Bundle createBundleFromList(ArrayList<T> dataList) {
+        Bundle res = new Bundle();
+        putListInBundle(res, dataList);
+        return res;
+    }
+
     public static <T extends ModelData> Bundle putListInBundle(Bundle bundle, ArrayList<T> dataList) {
         if (dataList != null) {
             T t = null;
@@ -63,7 +69,7 @@ public class DataHelper {
     }
 
     @Nullable
-    public static <T extends ModelData> List<T> readDataList(Bundle b, Class<T> modelToRead) {
+    public static <T extends ModelData> ArrayList<T> readDataList(Bundle b, Class<T> modelToRead) {
         return ArrayList.class.cast(b.getSerializable(modelToRead.getSimpleName() + "_list"));
     }
 }

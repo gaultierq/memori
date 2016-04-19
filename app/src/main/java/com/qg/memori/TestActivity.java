@@ -20,24 +20,22 @@ public class TestActivity extends AppCompatActivity {
         setContentView(R.layout.activity_take_the_quizz);
         setTitle("Take the quizz");
 
-        final List<QuizzData> quizzes = DataHelper.readDataList(getIntent().getExtras(), QuizzData.class);
+        final ArrayList<QuizzData> quizzes = DataHelper.readDataList(getIntent().getExtras(), QuizzData.class);
         if (quizzes == null || quizzes.isEmpty()) {
             Toast.makeText(this, "no quizz to be taken", Toast.LENGTH_LONG).show();
         }
         else {
 
-            TestDialogFragment frag = new TestDialogFragment(quizzes);
+            final TestDialogFragment frag = new TestDialogFragment();
+            frag.setArguments(DataHelper.createBundleFromList(quizzes));
 
             frag.setOnDismissListener(new  DialogInterface.OnDismissListener() {
                 @Override
                 public void onDismiss(DialogInterface dialog) {
-                    showResultFragment(quizzes);
+                    showResultFragment(frag.getQuizzes());
                 }
             });
             frag.show(getSupportFragmentManager(), "TestDialogFragment");
-
-//            showResultFragment(quizzes);
-
         }
     }
 
