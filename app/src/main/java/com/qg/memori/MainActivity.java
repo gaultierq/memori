@@ -19,7 +19,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.qg.memori.alarm.AlarmManager;
+import com.qg.memori.alarm.NotificationManager;
 import com.qg.memori.data.DataHelper;
 import com.qg.memori.data.MemoryData;
 import com.qg.memori.data.QuizzData;
@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         if (id == R.id.alarm) {
-            AlarmManager.scheduleNextAlarm(this, 1);
+            NotificationManager.scheduleNextAlarm(this, 1);
             Toast.makeText(this, "alarm in 1 seconds!", Toast.LENGTH_LONG).show();
             return true;
         }

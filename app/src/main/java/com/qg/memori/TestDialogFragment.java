@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.qg.memori.alarm.NotificationManager;
 import com.qg.memori.data.DataHelper;
 import com.qg.memori.data.QuizzData;
 import com.qg.memori.data.SQLHelper;
@@ -38,6 +39,7 @@ public class TestDialogFragment extends DialogFragment {
         view.findViewById(R.id.validate_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //quizz taken !
                 QuizzData q = quizzes.get(i);
                 boolean ok = ((EditText) view.findViewById(R.id.answer_box)).getText().toString().equalsIgnoreCase(q.memory.answer);
                 q.score = ok ? 10 : 1;
@@ -46,7 +48,7 @@ public class TestDialogFragment extends DialogFragment {
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
-
+                NotificationManager.refreshNotification(v.getContext());
                 configNextViewOrDismiss(view);
             }
         });

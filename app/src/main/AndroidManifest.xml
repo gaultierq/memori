@@ -28,10 +28,10 @@
 
 
         <receiver
-            android:name=".alarm.AlarmManager"
+            android:name=".alarm.NotificationManager"
             android:process=":remote" />
 
-        <activity android:name=".TestActivity"></activity>
+        <activity android:name=".ExamActivity"></activity>
     </application>
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />

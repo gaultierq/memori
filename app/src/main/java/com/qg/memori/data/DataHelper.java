@@ -42,13 +42,13 @@ public class DataHelper {
         return bundle;
     }
 
-    public static <T extends ModelData> Bundle createBundleFromList(ArrayList<T> dataList) {
+    public static <T extends ModelData> Bundle createBundleFromList(List<T> dataList) {
         Bundle res = new Bundle();
         putListInBundle(res, dataList);
         return res;
     }
 
-    public static <T extends ModelData> Bundle putListInBundle(Bundle bundle, ArrayList<T> dataList) {
+    public static <T extends ModelData> Bundle putListInBundle(Bundle bundle, List<T> dataList) {
         if (dataList != null) {
             T t = null;
             for (int i = 0; i < dataList.size(); i++) {
@@ -57,7 +57,7 @@ public class DataHelper {
                 }
             }
             if (t != null) {
-                bundle.putSerializable(t.getClass().getSimpleName() + "_list", dataList);
+                bundle.putSerializable(t.getClass().getSimpleName() + "_list", new ArrayList<T>(dataList));
             }
         }
         return bundle;
