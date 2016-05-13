@@ -22,4 +22,8 @@
     <item android:id="@+id/drop_and_add"
         android:title="drop and add"
         app:showAsAction="never" />
+
+    <item android:id="@+id/scheduele_test_1"
+        android:title="add 3 memories, every 5s"
+        app:showAsAction="never" />
 </menu>

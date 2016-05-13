@@ -1,5 +1,7 @@
 package com.qg.memori.data;
 
+import android.support.annotation.NonNull;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -23,4 +25,14 @@ public class MemoryData extends ModelData  {
 
     @DatabaseField
     public Boolean deleted;
+
+    @NonNull
+    public static MemoryData create(String question, String answer) {
+        MemoryData m = new MemoryData();
+        m.question = question;
+        m.answer = answer;
+        m.hint = null;
+        m.deleted = false;
+        return m;
+    }
 }

@@ -12,6 +12,8 @@ import com.j256.ormlite.table.TableUtils;
 import junit.framework.Assert;
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by q on 27/02/2016.
@@ -24,6 +26,8 @@ public class SQLHelper extends OrmLiteSqliteOpenHelper {
 
     private Dao<QuizzData, Long> quizzDao;
     private Dao<MemoryData, Long> memoryDao;
+
+    private Map<Class, Dao> daos = new HashMap<>();
 
 
     public SQLHelper(Context context) {
@@ -56,23 +60,35 @@ public class SQLHelper extends OrmLiteSqliteOpenHelper {
         }
     }
 
-    public Dao<QuizzData, Long> getQuizzDao() throws SQLException {
-        if (quizzDao == null) {
-            quizzDao = getDao(QuizzData.class);
-        }
-        return quizzDao;
-    }
 
-    public Dao<MemoryData, Long> getMemoryDao() throws SQLException {
-        if (memoryDao == null) {
-            memoryDao = getDao(MemoryData.class);
+    public <T> Dao<T, Long> obtainDao(Class<T> c) {
+        if (!daos.containsKey(c)) {
+            try {
+                daos.put(c, super.getDao(c));
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
         }
-        return memoryDao;
+        return daos.get(c);
     }
 
 
     public static void drop(Context context) {
         boolean res = context.deleteDatabase(DB_NAME);
         Assert.assertTrue(res);
+    }
+
+    public static <T extends ModelData> void safeInsert(Context context, T item) {
+        SQLHelper sql = new SQLHelper(context);
+        try {
+
+            int cr = sql.<T>obtainDao((Class<T>) item.getClass()).create(item);
+            if (cr != 1) {
+                throw new AssertionError("insertion has failed");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

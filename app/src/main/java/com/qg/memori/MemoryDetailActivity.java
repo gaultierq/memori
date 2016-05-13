@@ -35,7 +35,7 @@ public class MemoryDetailActivity extends AppCompatActivity {
                 try {
                     //mark memory as deleted
                     memory.deleted = true;
-                    sql.getMemoryDao().update(memory);
+                    sql.obtainDao(MemoryData.class).update(memory);
 
                     db.delete(QuizzData.class.getSimpleName(), "memoryId = '" + memory.id + "'", null);
                     db.setTransactionSuccessful();

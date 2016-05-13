@@ -44,7 +44,7 @@ public class TestDialogFragment extends DialogFragment {
                 boolean ok = ((EditText) view.findViewById(R.id.answer_box)).getText().toString().equalsIgnoreCase(q.memory.answer);
                 q.score = ok ? 10 : 1;
                 try {
-                    new SQLHelper(getContext()).getQuizzDao().update(q);
+                    new SQLHelper(getContext()).obtainDao(QuizzData.class).update(q);
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }

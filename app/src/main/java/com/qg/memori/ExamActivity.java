@@ -67,8 +67,8 @@ public class ExamActivity extends AppCompatActivity {
         Date now = new Date();
         SQLHelper sql = new SQLHelper(context);
         {
-            quizzesToTake = sql.getQuizzDao().queryBuilder().where().lt("dueDate", now).and().isNull("score").query();
-            Dao<MemoryData, Long> mdao = sql.getMemoryDao();
+            quizzesToTake = sql.obtainDao(QuizzData.class).queryBuilder().where().lt("dueDate", now).and().isNull("score").query();
+            Dao<MemoryData, Long> mdao = sql.obtainDao(MemoryData.class);
             for (QuizzData q : quizzesToTake) {
                 q.memory = mdao.queryForId(q.memoryId);
             }
@@ -76,7 +76,7 @@ public class ExamActivity extends AppCompatActivity {
         //schedule next alarm
         {
             final List<QuizzData> next;
-            QueryBuilder<QuizzData, Long> builder = sql.getQuizzDao().queryBuilder();
+            QueryBuilder<QuizzData, Long> builder = sql.obtainDao(QuizzData.class).queryBuilder();
             builder.where().gt("dueDate", now);
             builder.orderBy("dueDate", false);
             builder.limit(1L);

@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
             case MEMORY: {
                 List<MemoryData> memories = null;
                 try {
-                    memories = new SQLHelper(this).getMemoryDao().queryForEq("deleted", false);
+                    memories = new SQLHelper(this).obtainDao(MemoryData.class).queryForEq("deleted", false);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
             case QUIZZ: {
                 List<QuizzData> quizzes = null;
                 try {
-                    quizzes = new SQLHelper(this).getQuizzDao().queryForAll();
+                    quizzes = new SQLHelper(this).obtainDao(QuizzData.class).queryForAll();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
                         String question = questionBox.getText().toString();
                         String answer = answerBox.getText().toString();
 
-                        insertNewMemory(question, answer, context);
+                        insertNewMemory(context, question, answer, 0);
 
 
                         createList();
@@ -154,34 +154,22 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private static void insertNewMemory(String question, String answer, Context context) {
+    /**
+     * simple way to remember something new
+     */
+    private static void insertNewMemory(Context context, String question, String answer, long firstQuizzDelayMs) {
+
         //inserting the memory
-        MemoryData m = new MemoryData();
-        m.question = question;
-        m.answer = answer;
-        m.hint = null;
-        m.deleted = false;
+        MemoryData m = MemoryData.create(question, answer);
+        SQLHelper.safeInsert(context, m);
 
-        SQLHelper sql = new SQLHelper(context);
-        //sql.getReadableDatabase().beginTransaction();
-        try {
-            int cr = sql.getMemoryDao().create(m);
-            if (cr != 1 &&
-                    m.id > 0) {
-                throw new AssertionError("insertion has failed");
-            }
-            //inserting a first quizz
-            QuizzData q = new QuizzData();
-            q.dueDate = new Date();
-            q.memoryId = m.id;
-            sql.getQuizzDao().create(q);
+        //inserting a first quizz
+        QuizzData q = new QuizzData();
+        q.dueDate = new Date(System.currentTimeMillis() + firstQuizzDelayMs);
+        q.memoryId = m.id;
+        SQLHelper.safeInsert(context, q);
 
-            //sql.getReadableDatabase().setTransactionSuccessful();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            //sql.getReadableDatabase().endTransaction();
-        }
+        NotificationManager.refreshNotification(context);
     }
 
     @Override
@@ -206,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if (id == R.id.drop_and_add) {
             SQLHelper.drop(this);
-            insertNewMemory("dummy question", "dummy answer", this);
+            insertNewMemory(this, "dummy question", "dummy answer", 0);
             createList();
             return true;
         }
@@ -218,6 +206,13 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.alarm) {
             NotificationManager.scheduleNextAlarm(this, 1);
             Toast.makeText(this, "alarm in 1 seconds!", Toast.LENGTH_LONG).show();
+            return true;
+        }
+        if (id == R.id.scheduele_test_1) {
+            int n = 1;
+            for (int i = 0; i < 5; i++) {
+                insertNewMemory(this, Integer.toString(i), Integer.toString(i), i * 4 * 1000);
+            }
             return true;
         }
 
