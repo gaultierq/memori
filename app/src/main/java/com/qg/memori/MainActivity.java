@@ -13,8 +13,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -113,32 +111,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 final Context context = view.getContext();
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle("What do you want to remember?");
 
-                LinearLayout layout = new LinearLayout(context);
-                layout.setOrientation(LinearLayout.VERTICAL);
-
-                final EditText questionBox = new EditText(context);
-                questionBox.setHint("Type your question");
-                layout.addView(questionBox);
-
-                final EditText answerBox = new EditText(context);
-                answerBox.setHint("Type your answer");
-                layout.addView(answerBox);
-
+                final View layout = getLayoutInflater().inflate(R.layout.add_dialog, null);
                 builder.setView(layout);
 
                 builder.setPositiveButton("Remember", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        String question = questionBox.getText().toString();
-                        String answer = answerBox.getText().toString();
+                        String question = ((TextView) layout.findViewById(R.id.question_box)).getText().toString();
+                        String answer = ((TextView) layout.findViewById(R.id.answer_box)).getText().toString();
 
                         insertNewMemory(context, question, answer, 0);
-
-
                         createList();
                     }
                 });
