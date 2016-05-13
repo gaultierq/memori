@@ -26,6 +26,9 @@ public class MemoryData extends ModelData  {
     @DatabaseField
     public Boolean deleted;
 
+    @DatabaseField
+    public MemoryType type = MemoryType.NONE;
+
     @NonNull
     public static MemoryData create(String question, String answer) {
         MemoryData m = new MemoryData();

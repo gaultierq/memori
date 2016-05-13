@@ -112,6 +112,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 final Context context = view.getContext();
                 final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+
                 builder.setTitle("What do you want to remember?");
 
                 final View layout = getLayoutInflater().inflate(R.layout.add_dialog, null);
