@@ -26,4 +26,8 @@
     <item android:id="@+id/scheduele_test_1"
         android:title="add 3 memories, every 5s"
         app:showAsAction="never" />
+
+    <item android:id="@+id/change_platform"
+        android:title="change platform"
+        app:showAsAction="never" />
 </menu>

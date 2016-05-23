@@ -41,20 +41,42 @@ public class MainActivity extends AppCompatActivity {
         QUIZZ
     }
 
+    enum Platform {
+        DEV,
+        PROD
+    }
+
+    Platform platform;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        config();
+
+
         setContentView(R.layout.activity_memori_app);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        createList();
+        createContent();
+    }
+
+    private void config() {
+        platform = Platform.valueOf(SharedPrefsHelper.read(this, Prefs.APP_PLATFORM));
+    }
+
+    private void createContent() {
+        setTitle("Memori (" + platform + ")");
+
+        createContentView();
 
         configAddButton();
     }
 
-    public void createList() {
+    public void createContentView() {
+
         ListView listView = (ListView) findViewById(R.id.memory_list);
 
         //add title
@@ -102,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        createList();
+        createContentView();
     }
 
     private void configAddButton() {
@@ -126,8 +148,8 @@ public class MainActivity extends AppCompatActivity {
                         String question = ((TextView) layout.findViewById(R.id.question_box)).getText().toString();
                         String answer = ((TextView) layout.findViewById(R.id.answer_box)).getText().toString();
 
-                        insertNewMemory(context, question, answer, 0);
-                        createList();
+                        insertNewMemory(context, question, answer, platform == Platform.DEV ? new Date() : QuizzScheduler.nextFirstQuizzDate());
+                        createContentView();
                     }
                 });
 
@@ -145,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * simple way to remember something new
      */
-    private static void insertNewMemory(Context context, String question, String answer, long firstQuizzDelayMs) {
+    private static void insertNewMemory(Context context, String question, String answer, Date dueDate) {
 
         //inserting the memory
         MemoryData m = MemoryData.create(question, answer);
@@ -153,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
 
         //inserting a first quizz
         QuizzData q = new QuizzData();
-        q.dueDate = new Date(System.currentTimeMillis() + firstQuizzDelayMs);
+        q.dueDate = dueDate;
         q.memoryId = m.id;
         SQLHelper.safeInsert(context, q);
 
@@ -172,23 +194,23 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.action_display_quizz) {
             mode = ListMode.QUIZZ;
-            createList();
+            createContentView();
             return true;
         }
         if (id == R.id.action_display_memory) {
             mode = ListMode.MEMORY;
-            createList();
+            createContentView();
             return true;
         }
         if (id == R.id.drop_and_add) {
             SQLHelper.drop(this);
-            insertNewMemory(this, "dummy question", "dummy answer", 0);
-            createList();
+            insertNewMemory(this, "dummy question", "dummy answer", new Date());
+            createContentView();
             return true;
         }
         if (id == R.id.drop_db) {
             SQLHelper.drop(this);
-            createList();
+            createContentView();
             return true;
         }
         if (id == R.id.alarm) {
@@ -196,10 +218,17 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "alarm in 1 seconds!", Toast.LENGTH_LONG).show();
             return true;
         }
+        if (id == R.id.change_platform) {
+            Platform nextPlatform = platform == Platform.DEV ? Platform.PROD : Platform.DEV;
+            SharedPrefsHelper.write(this, Prefs.APP_PLATFORM, nextPlatform.name());
+            config();
+            createContent();
+            return true;
+        }
         if (id == R.id.scheduele_test_1) {
             int n = 1;
             for (int i = 0; i < 5; i++) {
-                insertNewMemory(this, Integer.toString(i), Integer.toString(i), i * 4 * 1000);
+                insertNewMemory(this, Integer.toString(i), Integer.toString(i), new Date(System.currentTimeMillis() + i * 4 * 1000));
             }
             return true;
         }
