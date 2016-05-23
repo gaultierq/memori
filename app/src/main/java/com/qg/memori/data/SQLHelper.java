@@ -21,7 +21,7 @@ import java.util.Map;
 
 public class SQLHelper extends OrmLiteSqliteOpenHelper {
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = DbVersion.last();
     public static final String DB_NAME = "memory.db";
 
     private Dao<QuizzData, Long> quizzDao;
@@ -49,17 +49,25 @@ public class SQLHelper extends OrmLiteSqliteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, ConnectionSource connectionSource, int oldVersion, int newVersion) {
-        try {
-            Log.i(SQLHelper.class.getName(), "onUpgrade");
-            TableUtils.dropTable(connectionSource, QuizzData.class, true);
-            TableUtils.dropTable(connectionSource, MemoryData.class, true);
-            onCreate(db, connectionSource);
-        } catch (SQLException e) {
-            Log.e(SQLHelper.class.getName(), "Can't drop databases", e);
-            throw new RuntimeException(e);
+        for (int v = oldVersion + 1; v <= newVersion; v++) {
+            DbVersion dbVersion = DbVersion.valueOf("V_" + v);
+            try {
+                migrateDb(db, connectionSource, dbVersion);
+            } catch (SQLException e) {
+                throw new RuntimeException("Db upgrade has failed.", e);
+            }
         }
     }
 
+    private void migrateDb(SQLiteDatabase db, ConnectionSource connectionSource, DbVersion dbVersion) throws SQLException {
+        switch (dbVersion) {
+            case V_1:
+                throw  new RuntimeException("Cannot upgrade to V1");
+            case V_2:
+                obtainDao(MemoryData.class).executeRaw("alter table `memory` add column type varchar default 'NONE';");
+                break;
+        }
+    }
 
     public <T> Dao<T, Long> obtainDao(Class<T> c) {
         if (!daos.containsKey(c)) {
