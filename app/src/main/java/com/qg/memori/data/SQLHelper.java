@@ -66,6 +66,9 @@ public class SQLHelper extends OrmLiteSqliteOpenHelper {
             case V_2:
                 obtainDao(MemoryData.class).executeRaw("alter table `memory` add column type varchar default 'NONE';");
                 break;
+            case V_3:
+                obtainDao(MemoryData.class).executeRaw("alter table `memory` add column acquired TINYINT(2) default 0;");
+                break;
         }
     }
 

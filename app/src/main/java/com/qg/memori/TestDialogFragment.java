@@ -45,6 +45,7 @@ public class TestDialogFragment extends DialogFragment {
                 q.score = ok ? 10 : 1;
                 try {
                     new SQLHelper(getContext()).obtainDao(QuizzData.class).update(q);
+                    QuizzScheduler.scheduleNextQuizz(getActivity(), q.memory);
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }

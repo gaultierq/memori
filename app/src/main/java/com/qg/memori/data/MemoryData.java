@@ -27,6 +27,9 @@ public class MemoryData extends ModelData  {
     public Boolean deleted;
 
     @DatabaseField
+    public Boolean acquired;
+
+    @DatabaseField
     public MemoryType type = MemoryType.NONE;
 
     @NonNull

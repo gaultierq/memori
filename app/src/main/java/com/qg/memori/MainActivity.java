@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
                         String question = ((TextView) layout.findViewById(R.id.question_box)).getText().toString();
                         String answer = ((TextView) layout.findViewById(R.id.answer_box)).getText().toString();
 
-                        insertNewMemory(context, question, answer, platform == Platform.DEV ? new Date() : QuizzScheduler.nextFirstQuizzDate());
+                        insertNewMemory(context, question, answer, platform == Platform.DEV ? new Date() : null);
                         createContentView();
                     }
                 });
@@ -173,11 +173,16 @@ public class MainActivity extends AppCompatActivity {
         MemoryData m = MemoryData.create(question, answer);
         SQLHelper.safeInsert(context, m);
 
-        //inserting a first quizz
-        QuizzData q = new QuizzData();
-        q.dueDate = dueDate;
-        q.memoryId = m.id;
-        SQLHelper.safeInsert(context, q);
+        if (dueDate == null) {
+            QuizzScheduler.scheduleNextQuizz(context, m);
+        }
+        else {
+            //inserting a first quizz
+            QuizzData q = new QuizzData();
+            q.dueDate = dueDate;
+            q.memoryId = m.id;
+            SQLHelper.safeInsert(context, q);
+        }
 
         NotificationManager.refreshNotification(context);
     }

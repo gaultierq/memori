@@ -5,8 +5,9 @@ package com.qg.memori.data;
  */
 public enum DbVersion {
     V_1, //stub
-    V_2
-    ; //introduce Memory.type
+    V_2, //Memory.type ++
+    V_3 //Memory.acquired ++
+    ;
 
     public static int last() {
         DbVersion[] values = DbVersion.values();
