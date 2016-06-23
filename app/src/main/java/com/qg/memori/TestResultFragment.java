@@ -8,10 +8,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.j256.ormlite.dao.Dao;
+import com.qg.memori.alarm.NotificationManager;
 import com.qg.memori.data.DataHelper;
 import com.qg.memori.data.QuizzData;
 import com.qg.memori.data.SQLHelper;
+
+import junit.framework.Assert;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -60,13 +65,18 @@ public class TestResultFragment extends Fragment {
         view.findViewById(R.id.saveExamResult).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Dao<QuizzData, Long> dao = new SQLHelper(getContext()).obtainDao(QuizzData.class);
                 for (QuizzData q : quizzes) {
+                    Assert.assertNotNull(q.score);
                     try {
-                        new SQLHelper(getContext()).obtainDao(QuizzData.class).update(q);
+                        dao.update(q);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
                 }
+
+                NotificationManager.refreshNotification(getContext());
+                Toast.makeText(getContext(), "Exam result saved", Toast.LENGTH_LONG).show();
                 getActivity().finish();
             }
         });

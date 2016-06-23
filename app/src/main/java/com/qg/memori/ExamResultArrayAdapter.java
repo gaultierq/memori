@@ -35,7 +35,7 @@ public class ExamResultArrayAdapter extends ArrayAdapter<QuizzData> {
 
         SeekBar sb = (SeekBar) itemViewGroup.findViewById(R.id.seekBar);
         boolean ok = q.getAnswer().equalsIgnoreCase(q.memory.answer);
-        sb.setProgress(ok ? 10 : 1);
+
 
         sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -51,7 +51,7 @@ public class ExamResultArrayAdapter extends ArrayAdapter<QuizzData> {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-
+        sb.setProgress(ok ? 10 : 1);
         return itemViewGroup;
     }
 }
