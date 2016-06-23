@@ -64,7 +64,15 @@ public class QuizzScheduler {
             int goodAnswerCount = QuizzData.countOnScore(quizzes, 10);
             if (goodAnswerCount < DELAYS.length) {
                 Long delay = DELAYS[goodAnswerCount];
-                nextQuizzDate = new Date(quizzes.get(0).dueDate.getTime() + delay);
+
+                if (quizzes.isEmpty()) {
+                    //first quizz
+                    //TODO: assign it to a ref hour
+                    nextQuizzDate = new Date(System.currentTimeMillis() + delay);
+                }
+                else {
+                    nextQuizzDate = new Date( quizzes.get(0).dueDate.getTime() + delay);
+                }
             }
             else {
                 memory.acquired = true;

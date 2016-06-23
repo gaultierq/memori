@@ -167,21 +167,20 @@ public class MainActivity extends AppCompatActivity {
     /**
      * simple way to remember something new
      */
-    private static void insertNewMemory(Context context, String question, String answer, Date dueDate) {
+    private static void insertNewMemory(Context context, String question, String answer, Date forcedDueDate) {
 
         //inserting the memory
         MemoryData m = MemoryData.create(question, answer);
         SQLHelper.safeInsert(context, m);
 
-        if (dueDate == null) {
-            QuizzScheduler.scheduleNextQuizz(context, m);
-        }
-        else {
-            //inserting a first quizz
+        if (forcedDueDate != null) {
+            //inserting a forced quizz
             QuizzData q = new QuizzData();
-            q.dueDate = dueDate;
+            q.dueDate = forcedDueDate;
             q.memoryId = m.id;
             SQLHelper.safeInsert(context, q);
+        } else {
+            QuizzScheduler.scheduleNextQuizz(context, m);
         }
 
         NotificationManager.refreshNotification(context);

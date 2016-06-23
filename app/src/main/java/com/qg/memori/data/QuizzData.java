@@ -30,6 +30,8 @@ public class QuizzData extends ModelData {
     @DatabaseField
     public Integer score; // 0-10
 
+    //the answer given by the user for this quizz
+    private String answer;
 
     public static int countOnScore(List<QuizzData> quizzes, Integer score) {
         int goodAnswer = 0;
@@ -39,5 +41,13 @@ public class QuizzData extends ModelData {
             }
         }
         return goodAnswer;
+    }
+
+    public void setAnswer(String answer) {
+        this.answer = answer;
+    }
+
+    public String getAnswer() {
+        return answer;
     }
 }

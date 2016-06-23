@@ -41,8 +41,9 @@ public class TestDialogFragment extends DialogFragment {
             public void onClick(View v) {
                 //quizz taken !
                 QuizzData q = quizzes.get(i);
-                boolean ok = ((EditText) view.findViewById(R.id.answer_box)).getText().toString().equalsIgnoreCase(q.memory.answer);
-                q.score = ok ? 10 : 1;
+                String answer = ((EditText) view.findViewById(R.id.answer_box)).getText().toString();
+                q.setAnswer(answer);
+
                 try {
                     new SQLHelper(getContext()).obtainDao(QuizzData.class).update(q);
                     QuizzScheduler.scheduleNextQuizz(getActivity(), q.memory);
