@@ -7,12 +7,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
 import android.support.v7.app.NotificationCompat;
-import android.util.Log;
 import android.widget.Toast;
 
+import com.orhanobut.logger.Logger;
+import com.qg.memori.ExamActivity;
 import com.qg.memori.MainActivity;
 import com.qg.memori.R;
-import com.qg.memori.ExamActivity;
 
 import java.sql.SQLException;
 
@@ -45,7 +45,7 @@ public class NotificationManager extends BroadcastReceiver {
     }
 
     private static void sendNotification(Context context, int numQuizzes) {
-        Log.i("NotificationManager", "displaying new quizzes to take");
+        Logger.i("displaying %s new quizzes to take", numQuizzes);
 
         android.app.NotificationManager mNotificationManager = (android.app.NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (numQuizzes <= 0) {

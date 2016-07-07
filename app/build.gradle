@@ -36,4 +36,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-appindexing:8.1.0'
     compile 'com.android.support:support-v4:23.1.1'
     compile 'com.android.support:recyclerview-v7:23.1.1'
+
+    //logger
+    compile 'com.orhanobut:logger:1.15'
 }

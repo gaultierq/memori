@@ -17,6 +17,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.orhanobut.logger.Logger;
 import com.qg.memori.alarm.NotificationManager;
 import com.qg.memori.data.DataHelper;
 import com.qg.memori.data.MemoryData;
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void config() {
         platform = Platform.valueOf(SharedPrefsHelper.read(this, Prefs.APP_PLATFORM));
+        Logger.init("Memori").hideThreadInfo().methodCount(1);
     }
 
     private void createContent() {
