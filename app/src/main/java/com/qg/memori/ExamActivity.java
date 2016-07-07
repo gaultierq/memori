@@ -41,7 +41,7 @@ public class ExamActivity extends AppCompatActivity {
         }
         else {
 
-            final TestDialogFragment frag = new TestDialogFragment();
+            final ExamDialogFragment frag = new ExamDialogFragment();
             frag.setArguments(DataHelper.createBundleFromList(quizzes));
 
             frag.setOnDismissListener(new  DialogInterface.OnDismissListener() {
@@ -50,13 +50,13 @@ public class ExamActivity extends AppCompatActivity {
                     showResultFragment(frag.getQuizzes());
                 }
             });
-            frag.show(getSupportFragmentManager(), "TestDialogFragment");
+            frag.show(getSupportFragmentManager(), "ExamDialogFragment");
         }
     }
 
     private void showResultFragment(List<QuizzData> quizzes) {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.add(R.id.fragment_container, TestResultFragment.newInstance(new ArrayList<>(quizzes)), "TestResultFragment");
+        ft.add(R.id.fragment_container, ExamResultFragment.newInstance(new ArrayList<>(quizzes)), "ExamResultFragment");
         ft.commit();
     }
 

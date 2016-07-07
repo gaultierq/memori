@@ -26,15 +26,18 @@ import java.util.List;
  * The quizz exam result will be displayed in this fragment.
  * User can correct if he was right or not.
  */
-public class TestResultFragment extends Fragment {
+public class ExamResultFragment extends Fragment {
+
+    public static final int LAYOUT = R.layout.exam_result_fragment;
+    //for layout of list elements see ExamResultArrayAdapter
 
     private List<QuizzData> quizzes;
 
-    public TestResultFragment() {
+    public ExamResultFragment() {
     }
 
-    public static TestResultFragment newInstance(ArrayList<QuizzData> quizzes) {
-        TestResultFragment fragment = new TestResultFragment();
+    public static ExamResultFragment newInstance(ArrayList<QuizzData> quizzes) {
+        ExamResultFragment fragment = new ExamResultFragment();
         Bundle args = new Bundle();
         DataHelper.putListInBundle(args, quizzes);
         fragment.setArguments(args);
@@ -47,13 +50,13 @@ public class TestResultFragment extends Fragment {
         if (getArguments() != null) {
             quizzes = DataHelper.readDataList(getArguments(), QuizzData.class);
         }
-        Log.d("TestResultFragment", "onCreate: quizzes size=" + quizzes.size());
+        Log.d("ExamResultFragment", "onCreate: quizzes size=" + quizzes.size());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.d("TestResultFragment", "onCreateView");
-        View view =  inflater.inflate(R.layout.test_result_fragment, container, false);
+        Log.d("ExamResultFragment", "onCreateView");
+        View view =  inflater.inflate(LAYOUT, container, false);
         ListView listView = (ListView) view.findViewById(R.id.test_result);
         listView.setAdapter(new ExamResultArrayAdapter(getContext(), quizzes));
 

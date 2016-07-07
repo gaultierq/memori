@@ -16,6 +16,9 @@ import java.util.List;
  * Created by q on 28/02/2016.
  */
 public class ExamResultArrayAdapter extends ArrayAdapter<QuizzData> {
+
+    public static final int LAYOUT = R.layout.exam_result_list_item;
+
     private final Context context;
 
     public ExamResultArrayAdapter(Context context, List<QuizzData> values) {
@@ -27,7 +30,7 @@ public class ExamResultArrayAdapter extends ArrayAdapter<QuizzData> {
     public View getView(int position, View convertView, ViewGroup parent) {
         final QuizzData q = getItem(position);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        ViewGroup itemViewGroup = (ViewGroup) inflater.inflate(R.layout.exam_result_list_item, parent, false);
+        ViewGroup itemViewGroup = (ViewGroup) inflater.inflate(LAYOUT, parent, false);
 
         ((TextView)itemViewGroup.findViewById(R.id.memory_question)).setText(q.memory.question);
         ((TextView)itemViewGroup.findViewById(R.id.memory_answer)).setText(q.memory.answer);

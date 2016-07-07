@@ -21,13 +21,13 @@ import java.util.List;
 /**
  * Created by q on 03/04/2016.
  */
-public class TestDialogFragment extends DialogFragment {
+public class ExamDialogFragment extends DialogFragment {
     private List<QuizzData> quizzes;
     private int i = -1;
 
     private DialogInterface.OnDismissListener onDismissListener;
 
-    public TestDialogFragment() {
+    public ExamDialogFragment() {
     }
 
     @Nullable
