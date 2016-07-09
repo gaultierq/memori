@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "1086227752889",
+    "firebase_url": "https://memori-f6aee.firebaseio.com",
+    "project_id": "memori-f6aee",
+    "storage_bucket": "memori-f6aee.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1086227752889:android:f370abaab05a836e",
+        "android_client_info": {
+          "package_name": "com.qg.memori"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1086227752889-0rva6aa6lba10l2gjt2qnfqeapl7srm9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6-DkGOajH0vvqCD1Bj9JElqLPKpmYX6E"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

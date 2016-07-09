@@ -17,6 +17,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.j256.ormlite.dao.Dao;
 import com.orhanobut.logger.Logger;
 import com.qg.memori.alarm.NotificationManager;
@@ -32,6 +33,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
 
+    public static final int LAYOUT = R.layout.activity_memori_app;
     protected ArrayAdapter adapter;
 
     ListMode mode = ListMode.MEMORY;
@@ -57,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         config();
 
 
-        setContentView(R.layout.activity_memori_app);
+        setContentView(LAYOUT);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createContent() {
-        setTitle("Memori (" + platform + ")");
+        setTitle("Memori (" + platform + " - " + FirebaseAuth.getInstance().getCurrentUser() + ")");
 
         createContentView();
 
@@ -230,6 +232,11 @@ public class MainActivity extends AppCompatActivity {
             SharedPrefsHelper.write(this, Prefs.APP_PLATFORM, nextPlatform.name());
             config();
             createContent();
+            return true;
+        }
+        if (id == R.id.logout) {
+            FirebaseAuth.getInstance().signOut();
+            startActivity(new Intent(this, LoginActivity.class));
             return true;
         }
 

@@ -31,12 +31,17 @@ dependencies {
 
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
-    compile 'com.google.android.gms:play-services-appindexing:9.0.0'
+    compile 'com.google.android.gms:play-services-appindexing:9.2.0'
     compile 'com.android.support:support-v4:23.1.1'
     compile 'com.android.support:recyclerview-v7:23.1.1'
 
     //logger
     compile 'com.orhanobut:logger:1.15'
+
+    compile 'com.google.firebase:firebase-database:9.2.0'
+    compile 'com.google.firebase:firebase-auth:9.2.0'
+
+
 }
 
 apply plugin: 'com.google.gms.google-services'
