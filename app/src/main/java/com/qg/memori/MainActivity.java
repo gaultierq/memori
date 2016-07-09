@@ -17,6 +17,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.j256.ormlite.dao.Dao;
 import com.orhanobut.logger.Logger;
 import com.qg.memori.alarm.NotificationManager;
 import com.qg.memori.data.DataHelper;
@@ -231,14 +232,24 @@ public class MainActivity extends AppCompatActivity {
             createContent();
             return true;
         }
-        if (id == R.id.scheduele_test_1) {
-            int n = 1;
-            for (int i = 0; i < 5; i++) {
-                insertNewMemory(this, Integer.toString(i), Integer.toString(i), new Date(System.currentTimeMillis() + i * 4 * 1000));
+
+        if (id == R.id.show_results) {
+            List<QuizzData> quizzes = null;
+
+            //get all quizz & memories
+            try {
+                quizzes = new SQLHelper(this).obtainDao(QuizzData.class).queryForAll();
+                Dao<MemoryData, Long> dao = new SQLHelper(this).obtainDao(MemoryData.class);
+                //fill up with memory datas
+                for (QuizzData q:quizzes) {
+                    q.memory = dao.queryForId(q.memoryId);
+                }
+            } catch (SQLException e) {
+                Logger.e(e, "");
             }
+            ExamActivity.showResultFragment(this, quizzes);
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 

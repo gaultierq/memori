@@ -30,4 +30,8 @@
     <item android:id="@+id/change_platform"
         android:title="change platform"
         app:showAsAction="never" />
+
+    <item android:id="@+id/show_results"
+        android:title="show exam results"
+        app:showAsAction="never" />
 </menu>

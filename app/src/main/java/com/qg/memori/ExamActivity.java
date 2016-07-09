@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
@@ -47,15 +48,15 @@ public class ExamActivity extends AppCompatActivity {
             frag.setOnDismissListener(new  DialogInterface.OnDismissListener() {
                 @Override
                 public void onDismiss(DialogInterface dialog) {
-                    showResultFragment(frag.getQuizzes());
+                    showResultFragment(ExamActivity.this, frag.getQuizzes());
                 }
             });
             frag.show(getSupportFragmentManager(), "ExamDialogFragment");
         }
     }
 
-    private void showResultFragment(List<QuizzData> quizzes) {
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+    public static void showResultFragment(FragmentActivity activity, List<QuizzData> quizzes) {
+        FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();
         ft.add(R.id.fragment_container, ExamResultFragment.newInstance(new ArrayList<>(quizzes)), "ExamResultFragment");
         ft.commit();
     }
