@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createContent() {
-        setTitle("Memori (" + platform + " - " + FirebaseAuth.getInstance().getCurrentUser() + ")");
+        setTitle("Memori (" + platform + " - " + FirebaseAuth.getInstance().getCurrentUser().getEmail() + ")");
 
         createContentView();
 

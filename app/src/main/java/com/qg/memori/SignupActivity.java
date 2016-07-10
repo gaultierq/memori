@@ -40,8 +40,6 @@ public class SignupActivity extends AppCompatActivity {
                 }
             }
         };
-
-        auth.signInAnonymously();
     }
 
     public void gotoLogin(View v) {
@@ -56,7 +54,7 @@ public class SignupActivity extends AppCompatActivity {
         ).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                Logger.d("onComplete:" + task.isSuccessful());
+                Logger.d("signup successful:" + task.isSuccessful());
 
                 if (!task.isSuccessful()) {
                     Log.w("signInWithEmail", task.getException());
@@ -67,4 +65,17 @@ public class SignupActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        auth.addAuthStateListener(authListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (authListener != null) {
+            auth.removeAuthStateListener(authListener);
+        }
+    }
 }
