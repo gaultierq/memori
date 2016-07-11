@@ -13,8 +13,10 @@ import com.orhanobut.logger.Logger;
 import com.qg.memori.ExamActivity;
 import com.qg.memori.MainActivity;
 import com.qg.memori.R;
+import com.qg.memori.RequestCallback;
+import com.qg.memori.data.QuizzData;
 
-import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Created by q on 25/03/2016.
@@ -36,12 +38,13 @@ public class NotificationManager extends BroadcastReceiver {
         wl.release();
     }
 
-    public static void refreshNotification(Context context) {
-        try {
-            sendNotification(context, ExamActivity.selectQuizzToTake(context).size());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    public static void refreshNotification(final Context context) {
+        ExamActivity.requestQuizzToTake(context, new RequestCallback<List<QuizzData>>() {
+            @Override
+            public void onSuccess(List<QuizzData> data) {
+                sendNotification(context, data.size());
+            }
+        });
     }
 
     private static void sendNotification(Context context, int numQuizzes) {

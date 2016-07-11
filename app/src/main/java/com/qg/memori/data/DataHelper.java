@@ -3,11 +3,14 @@ package com.qg.memori.data;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-import com.j256.ormlite.field.DatabaseField;
+import com.google.firebase.database.Exclude;
+import com.orhanobut.logger.Logger;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by q on 01/03/2016.
@@ -18,10 +21,6 @@ public class DataHelper {
         if (o instanceof ModelData) {
             StringBuilder b = new StringBuilder();
             for (Field f : o.getClass().getDeclaredFields()) {
-                DatabaseField sqlInfo = f.getAnnotation(DatabaseField.class);
-                if (sqlInfo == null) {
-                    continue;
-                }
                 if (b.length() > 0) {
                     b.append(" | ");
                 }
@@ -71,5 +70,20 @@ public class DataHelper {
     @Nullable
     public static <T extends ModelData> ArrayList<T> readDataList(Bundle b, Class<T> modelToRead) {
         return ArrayList.class.cast(b.getSerializable(modelToRead.getSimpleName() + "_list"));
+    }
+
+    public static Map<String, Object> introspect(Object obj) {
+        Field[] fields = obj.getClass().getDeclaredFields();
+        Map<String, Object> map = new HashMap<>();
+        for(Field f : fields) {
+            if (f.getAnnotation(Exclude.class) == null) {
+                try {
+                    map.put(f.getName(), f.get(obj));
+                } catch (IllegalAccessException e) {
+                    Logger.e("", e);
+                }
+            }
+        }
+        return map;
     }
 }

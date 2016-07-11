@@ -37,7 +37,7 @@ public class ExamResultArrayAdapter extends ArrayAdapter<QuizzData> {
         ((TextView)itemViewGroup.findViewById(R.id.quizz_answer)).setText(q.getAnswer());
 
         SeekBar sb = (SeekBar) itemViewGroup.findViewById(R.id.seekBar);
-        boolean ok = q.getAnswer() != null && q.getAnswer().equalsIgnoreCase(q.memory.answer);
+        boolean ok = /*q.getAnswer() != null && */q.getAnswer().equalsIgnoreCase(q.memory.answer);
 
 
         sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {

@@ -1,36 +1,57 @@
 package com.qg.memori.data;
 
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
-
-import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
-import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.support.ConnectionSource;
-import com.j256.ormlite.table.TableUtils;
-
-import junit.framework.Assert;
-
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 /**
  * Created by q on 27/02/2016.
  */
 
-public class SQLHelper extends OrmLiteSqliteOpenHelper {
 
+/*
+    Db structure
+
+    memoryByUserUid {
+        user_toto: [
+            memory1: {
+                id: azerty,
+                question,
+                ...
+                pendingQuizz {
+
+                }
+            }
+        ]
+    },
+    oldQuizzByMemoryUid {
+        azerty: [
+            quizz1: {
+            },
+            ...
+            ]
+    }
+
+ */
+public class DbHelper /*extends OrmLiteSqliteOpenHelper*/ {
+
+    public static final String NODE_MEMORY_BY_USER_UID = "memoryByUserUid";
+    public static final String NODE_OLD_QUIZZ_BY_MEMORY_UID = "oldQuizzByMemoryUid";
+
+    public static void updateMemory(MemoryData m) {
+        FirebaseUser u = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference db = FirebaseDatabase.getInstance().getReference();
+        db.child(NODE_MEMORY_BY_USER_UID).child(u.getUid()).child(m.id).setValue(m);
+    }
+
+/*
     private static final int DATABASE_VERSION = DbVersion.last();
     public static final String DB_NAME = "memory.db";
 
-    private Dao<QuizzData, Long> quizzDao;
-    private Dao<MemoryData, Long> memoryDao;
-
     private Map<Class, Dao> daos = new HashMap<>();
 
-
-    public SQLHelper(Context context) {
+    public DbHelper(Context context) {
         super(context, DB_NAME, null, DATABASE_VERSION);
     }
 
@@ -38,11 +59,11 @@ public class SQLHelper extends OrmLiteSqliteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase, ConnectionSource connectionSource) {
         try {
-            Log.i(SQLHelper.class.getName(), "onCreate");
+            Log.i(DbHelper.class.getName(), "onCreate");
             TableUtils.createTable(connectionSource, QuizzData.class);
             TableUtils.createTable(connectionSource, MemoryData.class);
         } catch (SQLException e) {
-            Log.e(SQLHelper.class.getName(), "Can't create database", e);
+            Log.e(DbHelper.class.getName(), "Can't create database", e);
             throw new RuntimeException(e);
         }
     }
@@ -89,17 +110,5 @@ public class SQLHelper extends OrmLiteSqliteOpenHelper {
         boolean res = context.deleteDatabase(DB_NAME);
         Assert.assertTrue(res);
     }
-
-    public static <T extends ModelData> void safeInsert(Context context, T item) {
-        SQLHelper sql = new SQLHelper(context);
-        try {
-
-            int cr = sql.<T>obtainDao((Class<T>) item.getClass()).create(item);
-            if (cr != 1) {
-                throw new AssertionError("insertion has failed");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+*/
 }

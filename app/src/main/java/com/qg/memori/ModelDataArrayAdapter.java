@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.j256.ormlite.table.TableUtils;
 import com.qg.memori.data.DataHelper;
 import com.qg.memori.data.ModelData;
 

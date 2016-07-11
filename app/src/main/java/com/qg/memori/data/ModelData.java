@@ -5,5 +5,6 @@ import java.io.Serializable;
 /**
  * Created by q on 29/02/2016.
  */
-public class ModelData  implements Serializable{
+public abstract class ModelData  implements Serializable{
+    //abstract String retrieveKey();
 }

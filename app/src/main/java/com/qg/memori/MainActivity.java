@@ -18,16 +18,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.j256.ormlite.dao.Dao;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.orhanobut.logger.Logger;
 import com.qg.memori.alarm.NotificationManager;
 import com.qg.memori.data.DataHelper;
+import com.qg.memori.data.DbHelper;
 import com.qg.memori.data.MemoryData;
 import com.qg.memori.data.QuizzData;
-import com.qg.memori.data.SQLHelper;
 
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -38,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
 
     ListMode mode = ListMode.MEMORY;
     private TextView listHeader;
+
+    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    DatabaseReference database = FirebaseDatabase.getInstance().getReference();
 
 
     enum ListMode {
@@ -82,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void createContentView() {
 
-        ListView listView = (ListView) findViewById(R.id.memory_list);
+        final ListView listView = (ListView) findViewById(R.id.memory_list);
 
         //add title
         if (listHeader == null) {
@@ -93,37 +102,68 @@ public class MainActivity extends AppCompatActivity {
 
         switch (mode) {
             case MEMORY: {
-                List<MemoryData> memories = null;
-                try {
-                    memories = new SQLHelper(this).obtainDao(MemoryData.class).queryForEq("deleted", false);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-                adapter = new ModelDataArrayAdapter(MainActivity.this, memories);
-                listView.setAdapter(adapter);
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                final List<MemoryData> memories = new ArrayList<>();
+//                try {
+//                    memories = new DbHelper(this).obtainDao(MemoryData.class).queryForEq("deleted", false);
+//                } catch (SQLException e) {
+//                    e.printStackTrace();
+//                }
 
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Intent intent = new Intent(MainActivity.this, MemoryDetailActivity.class);
-                        intent.putExtras(DataHelper.putInBundle(new Bundle(), (MemoryData) adapter.getItem(position - 1)));
-                        MainActivity.this.startActivity(intent);
-                    }
-                });
+                final String userUid = user.getUid();
+
+
+                database.child("memoryByUserUid").child(userUid).addListenerForSingleValueEvent(
+                        new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                Iterator<DataSnapshot> it = dataSnapshot.getChildren().iterator();
+                                while (it.hasNext()) {
+                                    MemoryData e = it.next().getValue(MemoryData.class);
+                                    memories.add(e);
+                                }
+                                Logger.d("retreived %d memories", memories.size());
+
+                                adapter = new ModelDataArrayAdapter(MainActivity.this, memories);
+                                listView.setAdapter(adapter);
+
+                                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                        displayMemoryDetail(position);
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                Logger.w("", databaseError.toException());
+                            }
+                        });
+
                 break;
             }
             case QUIZZ: {
-                List<QuizzData> quizzes = null;
+                //useless TODO: remove
+                List<QuizzData> quizzes = new ArrayList<>();
+                /*
                 try {
-                    quizzes = new SQLHelper(this).obtainDao(QuizzData.class).queryForAll();
+                    quizzes = new DbHelper(this).obtainDao(QuizzData.class).queryForAll();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
+                */
                 adapter = new ModelDataArrayAdapter(MainActivity.this, quizzes);
                 listView.setAdapter(adapter);
                 listView.setOnItemClickListener(null);
                 break;
             }
         }
+    }
+
+    private void displayMemoryDetail(int position) {
+        Intent intent = new Intent(MainActivity.this, MemoryDetailActivity.class);
+        intent.putExtras(DataHelper.putInBundle(new Bundle(), (MemoryData) adapter.getItem(position - 1)));
+        MainActivity.this.startActivity(intent);
     }
 
     @Override
@@ -172,23 +212,17 @@ public class MainActivity extends AppCompatActivity {
     /**
      * simple way to remember something new
      */
-    private static void insertNewMemory(Context context, String question, String answer, Date forcedDueDate) {
+    private void insertNewMemory(Context context, String question, String answer, Date forcedDueDate) {
 
         //inserting the memory
         MemoryData m = MemoryData.create(question, answer);
-        SQLHelper.safeInsert(context, m);
 
-        if (forcedDueDate != null) {
-            //inserting a forced quizz
-            QuizzData q = new QuizzData();
-            q.dueDate = forcedDueDate;
-            q.memoryId = m.id;
-            SQLHelper.safeInsert(context, q);
-        } else {
-            QuizzScheduler.scheduleNextQuizz(context, m);
-        }
+        String s = m.getClass().getSimpleName().toString().toLowerCase();
+        DatabaseReference k = database.child(DbHelper.NODE_MEMORY_BY_USER_UID).child(user.getUid()).push();
+        m.id = k.getKey();
+        k.setValue(m);
 
-        NotificationManager.refreshNotification(context);
+        QuizzScheduler.scheduleNextQuizz(context, m);
     }
 
     @Override
@@ -212,13 +246,14 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         if (id == R.id.drop_and_add) {
-            SQLHelper.drop(this);
+            dropDb();
+
             insertNewMemory(this, "dummy question", "dummy answer", new Date());
             createContentView();
             return true;
         }
         if (id == R.id.drop_db) {
-            SQLHelper.drop(this);
+            dropDb();
             createContentView();
             return true;
         }
@@ -241,12 +276,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (id == R.id.show_results) {
+            /*
             List<QuizzData> quizzes = null;
 
             //get all quizz & memories
             try {
-                quizzes = new SQLHelper(this).obtainDao(QuizzData.class).queryForAll();
-                Dao<MemoryData, Long> dao = new SQLHelper(this).obtainDao(MemoryData.class);
+                quizzes = new DbHelper(this).obtainDao(QuizzData.class).queryForAll();
+                Dao<MemoryData, Long> dao = new DbHelper(this).obtainDao(MemoryData.class);
                 //fill up with memory datas
                 for (QuizzData q:quizzes) {
                     q.memory = dao.queryForId(q.memoryId);
@@ -255,9 +291,15 @@ public class MainActivity extends AppCompatActivity {
                 Logger.e(e, "");
             }
             ExamActivity.showResultFragment(this, quizzes);
+            */
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void dropDb() {
+        database.child(DbHelper.NODE_MEMORY_BY_USER_UID).removeValue();
+        database.child(DbHelper.NODE_OLD_QUIZZ_BY_MEMORY_UID).removeValue();
     }
 
 

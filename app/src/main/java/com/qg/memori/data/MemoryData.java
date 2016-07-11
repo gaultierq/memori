@@ -2,34 +2,27 @@ package com.qg.memori.data;
 
 import android.support.annotation.NonNull;
 
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
+import com.google.firebase.database.Exclude;
 
 /**
  * Created by q on 27/02/2016.
  */
 
-@DatabaseTable(tableName = "memory")
 public class MemoryData extends ModelData  {
-    @DatabaseField(generatedId = true)
-    public long id;
 
-    @DatabaseField
+    public String id;
+
     public String question;
 
-    @DatabaseField
     public String answer;
 
-    @DatabaseField
     public String hint;
 
-    @DatabaseField
     public Boolean deleted;
 
-    @DatabaseField
-    public Boolean acquired;
+    public QuizzData nextQuizz;
 
-    @DatabaseField
+    @Exclude
     public MemoryType type = MemoryType.NONE;
 
     @NonNull

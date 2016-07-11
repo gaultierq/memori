@@ -1,17 +1,17 @@
 package com.qg.memori;
 
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.orhanobut.logger.Logger;
 import com.qg.memori.data.DataHelper;
+import com.qg.memori.data.DbHelper;
 import com.qg.memori.data.MemoryData;
-import com.qg.memori.data.QuizzData;
-import com.qg.memori.data.SQLHelper;
-
-import java.sql.SQLException;
 
 public class MemoryDetailActivity extends AppCompatActivity {
 
@@ -28,23 +28,22 @@ public class MemoryDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                SQLHelper sql = new SQLHelper(MemoryDetailActivity.this);
-                SQLiteDatabase db = sql.getReadableDatabase();
+                MemoryData m = memory;
+                m.deleted = true;
 
-                db.beginTransaction();
-                try {
-                    //mark memory as deleted
-                    memory.deleted = true;
-                    sql.obtainDao(MemoryData.class).update(memory);
+                DbHelper.updateMemory(m);
 
-                    db.delete(QuizzData.class.getSimpleName(), "memoryId = '" + memory.id + "'", null);
-                    db.setTransactionSuccessful();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                } finally {
-                    db.endTransaction();
-                }
-                finish();
+                FirebaseDatabase.getInstance().getReference().child(DbHelper.NODE_OLD_QUIZZ_BY_MEMORY_UID).child(m.id).setValue(null, new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                        if (databaseError != null) {
+                            Logger.e("error while removing quizzes", databaseError);
+                        } else {
+                            finish();
+                        }
+                    }
+                });
+
             }
         });
 

@@ -13,9 +13,7 @@ import android.widget.TextView;
 import com.qg.memori.alarm.NotificationManager;
 import com.qg.memori.data.DataHelper;
 import com.qg.memori.data.QuizzData;
-import com.qg.memori.data.SQLHelper;
 
-import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -44,12 +42,16 @@ public class ExamDialogFragment extends DialogFragment {
                 String answer = ((EditText) view.findViewById(R.id.answer_box)).getText().toString();
                 q.setAnswer(answer);
 
+                //TODO: why should this be updated ?
+                /*
                 try {
-                    new SQLHelper(getContext()).obtainDao(QuizzData.class).update(q);
-                    QuizzScheduler.scheduleNextQuizz(getActivity(), q.memory);
+                    new DbHelper().obtainDao(QuizzData.class).update(q);
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
+                */
+
+                QuizzScheduler.scheduleNextQuizz(getActivity(), q.memory);
                 NotificationManager.refreshNotification(v.getContext());
                 configNextViewOrDismiss(view);
             }

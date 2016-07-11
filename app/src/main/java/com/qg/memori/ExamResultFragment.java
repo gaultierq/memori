@@ -10,17 +10,23 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.j256.ormlite.dao.Dao;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.orhanobut.logger.Logger;
 import com.qg.memori.alarm.NotificationManager;
 import com.qg.memori.data.DataHelper;
+import com.qg.memori.data.DbHelper;
 import com.qg.memori.data.QuizzData;
-import com.qg.memori.data.SQLHelper;
 
 import junit.framework.Assert;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The quizz exam result will be displayed in this fragment.
@@ -65,22 +71,39 @@ public class ExamResultFragment extends Fragment {
         listView.addHeaderView(listHeader);
         listHeader.setText("Result of your test");
 
+
+        //save the results
         view.findViewById(R.id.saveExamResult).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Dao<QuizzData, Long> dao = new SQLHelper(getContext()).obtainDao(QuizzData.class);
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                DatabaseReference db = FirebaseDatabase.getInstance().getReference();
+
+                Map<String, Object> updates = new HashMap<>();
                 for (QuizzData q : quizzes) {
                     Assert.assertNotNull(q.score);
-                    try {
-                        dao.update(q);
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
+                    String key = db.child(DbHelper.NODE_OLD_QUIZZ_BY_MEMORY_UID).child(q.memoryId).push().getKey();
+                    updates.put("/" + DbHelper.NODE_MEMORY_BY_USER_UID + "/" + user.getUid() + "/" + q.memoryId + "/pendingQuizz", null);
+                    updates.put("/" + DbHelper.NODE_OLD_QUIZZ_BY_MEMORY_UID + "/" + q.memoryId + "/" + key, q.toMap());
                 }
 
-                NotificationManager.refreshNotification(getContext());
-                Toast.makeText(getContext(), "Exam result saved", Toast.LENGTH_LONG).show();
-                getActivity().finish();
+                Logger.i("Updating exam results. %s", updates);
+
+                db.updateChildren(updates, new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                        if (databaseError != null) {
+                            Logger.e("Someting went wrong wile updating all children.", databaseError);
+                        }
+                        else {
+                            NotificationManager.refreshNotification(getContext());
+                            Toast.makeText(getContext(), "Exam result saved", Toast.LENGTH_LONG).show();
+                            getActivity().finish();
+                        }
+                    }
+                });
+
+
             }
         });
         return view;

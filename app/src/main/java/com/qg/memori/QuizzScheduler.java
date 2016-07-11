@@ -3,15 +3,20 @@ package com.qg.memori;
 import android.content.Context;
 import android.text.format.DateUtils;
 
-import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.stmt.QueryBuilder;
-import com.j256.ormlite.stmt.Where;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.orhanobut.logger.Logger;
+import com.qg.memori.alarm.NotificationManager;
+import com.qg.memori.data.DbHelper;
 import com.qg.memori.data.MemoryData;
 import com.qg.memori.data.QuizzData;
-import com.qg.memori.data.SQLHelper;
 
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -28,68 +33,67 @@ public class QuizzScheduler {
             6 * 30 * DateUtils.DAY_IN_MILLIS,
 
     };
-//
-//    //after 12 hours, 8am
-//    public static Date nextFirstQuizzDate() {
-//        Calendar c = Calendar.getInstance();
-//        c.add(Calendar.DAY_OF_MONTH, 1);
-//        c.set(Calendar.HOUR_OF_DAY, 8);
-//        c.set(Calendar.MINUTE, 0);
-//        c.set(Calendar.SECOND, 0);
-//        c.set(Calendar.MILLISECOND, 0);
-//        return c.getTime();
-//    }
 
-    public static void scheduleNextQuizz(Context context, MemoryData memory) {
-        SQLHelper sqlHelper = new SQLHelper(context);
+    public static void scheduleNextQuizz(final Context context, final MemoryData memory) {
+        /*
+        DbHelper sqlHelper = new DbHelper(context);
+
         Dao<QuizzData, Long> qdao = sqlHelper.obtainDao(QuizzData.class);
-        QueryBuilder<QuizzData, Long> qb = qdao.queryBuilder();
-        List<QuizzData> quizzes;
-        try {
-            Where<QuizzData, Long> memoryId = qb.where().eq("memoryId", memory.id);
-            qb.orderBy("dueDate", false);
-            quizzes = memoryId.query();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
+        final QueryBuilder<QuizzData, Long> qb = qdao.queryBuilder();
+*/
+        final List<QuizzData> oldQuizzes = new ArrayList<>();
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
 
-        Date nextQuizzDate = null;
+        database.child(DbHelper.NODE_OLD_QUIZZ_BY_MEMORY_UID).child(memory.id).orderByKey().addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Iterator<DataSnapshot> it = dataSnapshot.getChildren().iterator();
+                        while (it.hasNext()) {
+                            QuizzData e = it.next().getValue(QuizzData.class);
+                            oldQuizzes.add(e);
+                        }
 
-        int pendingQuizzes = QuizzData.countOnScore(quizzes, null);
-        if (pendingQuizzes > 1) {
-            throw new RuntimeException("Multiple pending quizzes should not happen.");
-        }
-        else if (pendingQuizzes == 0) {
-            int goodAnswerCount = QuizzData.countOnScore(quizzes, 10);
-            if (goodAnswerCount < DELAYS.length) {
-                Long delay = DELAYS[goodAnswerCount];
+                        Logger.d("%d old quizzes found for memory %s", oldQuizzes.size(), memory.id);
+                        Long nextQuizzDate = null;
+                        int goodAnswerCount = QuizzData.countOnScore(oldQuizzes, 10);
 
-                if (quizzes.isEmpty()) {
-                    //first quizz
-                    //TODO: assign it to a ref hour
-                    nextQuizzDate = new Date(System.currentTimeMillis() + delay);
-                }
-                else {
-                    nextQuizzDate = new Date( quizzes.get(0).dueDate.getTime() + delay);
-                }
-            }
-            else {
-                memory.acquired = true;
-                try {
-                    sqlHelper.obtainDao(MemoryData.class).update(memory);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    throw new RuntimeException(e);
-                }
-            }
-            if (nextQuizzDate != null) {
-                QuizzData q = new QuizzData();
-                q.dueDate = nextQuizzDate;
-                q.memoryId = memory.id;
-                SQLHelper.safeInsert(context, q);
-            }
-        }
+                        //TODO: clean this code
+                        if (goodAnswerCount < DELAYS.length) {
+                            Long delay = DELAYS[goodAnswerCount];
+
+                            //first quizz
+                            if (oldQuizzes.isEmpty()) {
+                                //TODO: assign it to a ref hour
+                                nextQuizzDate = System.currentTimeMillis() + delay;
+                            } else {
+                                nextQuizzDate = oldQuizzes.get(0).dueDate + delay;
+                            }
+                        } else {
+                            //memory is in your brain now :)
+                            memory.nextQuizz = null;
+                        }
+
+                        if (nextQuizzDate != null) {
+                            Logger.d("Next quizz for memory %s will be on %s", memory.id, new Date(nextQuizzDate));
+                            QuizzData q = new QuizzData();
+                            q.dueDate = nextQuizzDate;
+                            q.memoryId = memory.id;
+                            memory.nextQuizz = q;
+                        }
+                        DbHelper.updateMemory(memory);
+
+                        NotificationManager.refreshNotification(context);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Logger.w("", databaseError.toException());
+                    }
+                });
+
+
+
 
     }
 

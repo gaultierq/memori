@@ -1,36 +1,32 @@
 package com.qg.memori.data;
 
-import com.j256.ormlite.field.DataType;
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
+import com.google.firebase.database.Exclude;
 import com.qg.memori.QuizzType;
 
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by q on 29/02/2016.
  */
-@DatabaseTable(tableName = "quizz")
 public class QuizzData extends ModelData {
-    @DatabaseField(generatedId = true)
-    public long id;
 
-    @DatabaseField
-    public long memoryId;
+    public String id;
 
+    public String memoryId;
+
+    @Exclude
     public MemoryData memory;
 
-    @DatabaseField
+    @Exclude
     public QuizzType type = QuizzType.TYPE_YOUR_ANSWER;
 
-    @DatabaseField(dataType = DataType.DATE_LONG)
-    public Date dueDate;
+    public Long dueDate;
 
-    @DatabaseField
     public Integer score; // 0-10
 
     //the answer given by the user for this quizz
+    @Exclude
     private String answer;
 
     public static int countOnScore(List<QuizzData> quizzes, Integer score) {
@@ -50,4 +46,9 @@ public class QuizzData extends ModelData {
     public String getAnswer() {
         return answer;
     }
+
+    public Map<String, Object> toMap() {
+        return DataHelper.introspect(this);
+    }
+
 }
