@@ -3,6 +3,8 @@
 APP_ID=$0
 APP_TOKEN=$1
 
+echo "Sending binary to hockeyapp (app_id=$APP_ID , app_token=$APP_TOKEN)"
+
 curl \
 -F "status=2" \
 -F "notify=1" \
