@@ -11,7 +11,7 @@ public class SharedPrefsHelper {
     public static String read(Context context, Prefs pref) {
         String[] s = pref.name().split("_");
         SharedPreferences sharedPreferences = context.getSharedPreferences(s[0], Context.MODE_PRIVATE);
-        return sharedPreferences.getString(s[1], pref.def);
+        return sharedPreferences.getString(s[1], pref.defaultValue);
     }
 
     public static void write(Context context, Prefs pref, String val) {

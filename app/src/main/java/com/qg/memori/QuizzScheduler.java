@@ -64,7 +64,6 @@ public class QuizzScheduler {
 
                             //first quizz
                             if (oldQuizzes.isEmpty()) {
-                                //TODO: assign it to a ref hour
                                 nextQuizzDate = System.currentTimeMillis() + delay;
                             } else {
                                 nextQuizzDate = oldQuizzes.get(0).dueDate + delay;

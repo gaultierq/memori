@@ -29,7 +29,6 @@ import com.qg.memori.alarm.NotificationManager;
 import com.qg.memori.data.DataHelper;
 import com.qg.memori.data.DbHelper;
 import com.qg.memori.data.MemoryData;
-import com.qg.memori.data.QuizzData;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -143,18 +142,6 @@ public class MainActivity extends AppCompatActivity {
                 break;
             }
             case QUIZZ: {
-                //useless TODO: remove
-                List<QuizzData> quizzes = new ArrayList<>();
-                /*
-                try {
-                    quizzes = new DbHelper(this).obtainDao(QuizzData.class).queryForAll();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-                */
-                adapter = new ModelDataArrayAdapter(MainActivity.this, quizzes);
-                listView.setAdapter(adapter);
-                listView.setOnItemClickListener(null);
                 break;
             }
         }
@@ -274,24 +261,8 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, LoginActivity.class));
             return true;
         }
-
-        if (id == R.id.show_results) {
-            /*
-            List<QuizzData> quizzes = null;
-
-            //get all quizz & memories
-            try {
-                quizzes = new DbHelper(this).obtainDao(QuizzData.class).queryForAll();
-                Dao<MemoryData, Long> dao = new DbHelper(this).obtainDao(MemoryData.class);
-                //fill up with memory datas
-                for (QuizzData q:quizzes) {
-                    q.memory = dao.queryForId(q.memoryId);
-                }
-            } catch (SQLException e) {
-                Logger.e(e, "");
-            }
-            ExamActivity.showResultFragment(this, quizzes);
-            */
+        if (id == R.id.preferences) {
+            startActivity(new Intent(this, PreferencesActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -4,11 +4,13 @@ package com.qg.memori;
  * Created by q on 23/05/2016.
  */
 public enum Prefs {
-    APP_PLATFORM("PROD");
+    APP_PLATFORM("PROD"),
+    WORKOUT_TIME("09:00")
+    ;
 
-    public final String def;
+    public final String defaultValue;
 
     Prefs(String def) {
-        this.def = def;
+        this.defaultValue = def;
     }
 }

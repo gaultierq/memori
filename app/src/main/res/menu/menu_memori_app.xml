@@ -35,6 +35,9 @@
         android:title="show exam results"
         app:showAsAction="never" />
 
+    <item android:id="@+id/preferences"
+        android:title="Settings" />
+
     <item android:id="@+id/logout"
         android:title="logout"
         app:showAsAction="never" />
