@@ -1,6 +1,6 @@
 dependencies:
     pre:
-        - echo y | sudo /usr/local/android-sdk-linux/tools/android update sdk --no-ui --all
+        - echo y | sudo /usr/local/android-sdk-linux/tools/android update sdk --no-ui --all --filter extra-android-m2repository,extra-android-support,extra-google-google_play_services,extra-google-m2repository
 
 test:
   override:
@@ -11,4 +11,4 @@ deployment:
   develop:
     branch: master
     commands:
-      - ./deploy_dev.sh
+      - ./deploy_dev.sh $HOCKEY_APP_ID $HOCKEY_APP_TOKEN
