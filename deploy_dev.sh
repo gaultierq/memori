@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-APP_ID=$0
-APP_TOKEN=$1
+APP_ID=$1
+APP_TOKEN=$2
 
 echo "Sending binary to hockeyapp (app_id=$APP_ID , app_token=$APP_TOKEN)"
 
