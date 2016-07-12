@@ -1,3 +1,7 @@
+dependencies:
+    pre:
+        - echo y | sudo /usr/local/android-sdk-linux/tools/android update sdk --no-ui --all
+
 test:
   override:
     - ./gradlew assemble
