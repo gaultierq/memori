@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-local APP_ID=$0
-local APP_TOKEN=$1
+
+APP_ID=$0
+APP_TOKEN=$1
 
 curl \
 -F "status=2" \
